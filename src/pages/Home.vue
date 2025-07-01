@@ -1,3 +1,4 @@
+<!-- src/pages/Home.vue -->
 <template>
   <div class="home-container">
     <el-card class="box-card home-main-content">
@@ -16,6 +17,11 @@
                 <el-button :icon="Search" @click="handleSearch"></el-button>
               </template>
             </el-input>
+
+            <!-- AI Chat Button -->
+            <el-button type="info" @click="showAIChatBox = true" style="margin-right: 10px;">
+              AI 聊天
+            </el-button>
 
             <el-dropdown v-if="userStore.userInfo" trigger="hover" class="user-dropdown">
               <span class="el-dropdown-link user-greeting">
@@ -79,6 +85,12 @@
         class="pagination-container"
       />
     </el-card>
+
+    <!-- AI Chat Box Component -->
+    <AIChatBox
+      :visible="showAIChatBox"
+      @update:visible="showAIChatBox = $event"
+    />
   </div>
 </template>
 
@@ -89,7 +101,10 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 import * as postService from '@/api/post';
 import type { Post } from '@/models/entity/Post';
-import { Search, View, ChatDotRound, Star, ArrowDown } from '@element-plus/icons-vue'; // Import ArrowDown icon
+import { Search, View, ChatDotRound, Star, ArrowDown } from '@element-plus/icons-vue';
+
+// Import the new AI Chat Box component
+import AIChatBox from '@/components/AIChatBox.vue';
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -100,6 +115,9 @@ const currentPage = ref(1);
 const pageSize = ref(10);
 const totalPosts = ref(0);
 const searchQuery = ref('');
+
+// State to control AI Chat Box visibility
+const showAIChatBox = ref(false);
 
 const isAdmin = computed(() => {
   if (userStore.userInfo && userStore.userInfo.roles) {
