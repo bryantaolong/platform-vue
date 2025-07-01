@@ -12,6 +12,7 @@ import MyFavorites from '@/pages/post/MyFavorites.vue' // 导入我的收藏页
 
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
+import Profile from "@/pages/Profile.vue";
 
 const routes = [
   {
@@ -55,8 +56,13 @@ const routes = [
         name: 'UserManagement',
         meta: { requiresAdmin: true }
       }
-      // 更多子路由...
     ]
+  },
+    {
+    path: '/profile', // 个人中心路由
+    component: Profile,
+    name: 'Profile',
+    meta: { requiresAuth: true } // 需要登录才能访问
   },
   {
     path: '/:pathMatch(.*)*',
@@ -71,7 +77,7 @@ const router = createRouter({
 })
 
 // 全局前置守卫
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const userStore = useUserStore();
 
   // 检查是否需要认证

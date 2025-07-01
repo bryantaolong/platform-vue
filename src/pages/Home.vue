@@ -13,21 +13,28 @@
               @keyup.enter="handleSearch"
             >
               <template #append>
-                <el-button :icon="Search" @click="handleSearch"></el-button> </template>
+                <el-button :icon="Search" @click="handleSearch"></el-button>
+              </template>
             </el-input>
-            <el-button type="primary" @click="goToDashboard" v-if="isAdmin">后台管理</el-button>
-            <el-button type="danger" @click="handleLogout">登出</el-button>
+
+            <el-dropdown v-if="userStore.userInfo" trigger="hover" class="user-dropdown">
+              <span class="el-dropdown-link user-greeting">
+                欢迎，{{ userStore.userInfo.username }}
+                <el-icon class="el-icon--right"><arrow-down /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item @click="goToDashboard" v-if="isAdmin">后台管理</el-dropdown-item>
+                  <el-dropdown-item @click="goToMyFavorites" v-if="userStore.token">我的收藏</el-dropdown-item>
+                  <el-dropdown-item @click="goToPersonalCenter">个人中心</el-dropdown-item>
+                  <el-dropdown-item divided @click="handleLogout">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+            <el-button type="primary" @click="goToLogin" v-else>前往登录</el-button>
           </div>
         </div>
       </template>
-
-      <div v-if="userStore.userInfo" class="user-info-summary">
-        <el-tag type="info">欢迎，{{ userStore.userInfo.username }}！</el-tag>
-        <el-button link type="primary" @click="goToMyFavorites" v-if="userStore.token">我的收藏</el-button>
-      </div>
-      <div v-else>
-        <el-button type="primary" @click="goToLogin">前往登录</el-button>
-      </div>
 
       <el-divider></el-divider>
 
@@ -82,7 +89,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from '@/stores/user';
 import * as postService from '@/api/post';
 import type { Post } from '@/models/entity/Post';
-import { Search, View, ChatDotRound, Star } from '@element-plus/icons-vue';
+import { Search, View, ChatDotRound, Star, ArrowDown } from '@element-plus/icons-vue'; // Import ArrowDown icon
 
 const userStore = useUserStore();
 const router = useRouter();
@@ -215,6 +222,15 @@ const goToMyFavorites = () => {
   router.push('/my-favorites');
 };
 
+const goToPersonalCenter = () => {
+  if (!userStore.token) {
+      ElMessage.warning('请先登录以查看个人中心！');
+      router.push('/login');
+      return;
+  }
+  router.push('/profile');
+};
+
 onMounted(async () => {
   if (!userStore.userInfo && userStore.token) {
     try {
@@ -266,7 +282,26 @@ watch(searchQuery, (newVal) => {
 .header-actions {
   display: flex;
   align-items: center;
+  gap: 10px; /* Add gap for spacing between elements */
 }
+
+/* New styles for user dropdown */
+.user-dropdown {
+  margin-left: 10px; /* Adjust as needed */
+}
+
+.user-greeting {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  color: #409eff; /* Element Plus primary color */
+}
+
+.el-icon--right {
+  margin-left: 5px;
+}
+/* End new styles */
 
 .user-info-summary {
   margin-bottom: 15px;
