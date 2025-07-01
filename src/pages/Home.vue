@@ -1,86 +1,162 @@
 <template>
   <div class="home-container">
-    <el-card class="box-card">
+    <el-card class="box-card home-main-content">
       <template #header>
         <div class="card-header">
-          <span>欢迎来到主页！</span>
-          <el-button type="danger" @click="handleLogout">登出</el-button>
+          <span>最新博文</span>
+          <div class="header-actions">
+            <el-input
+              v-model="searchQuery"
+              placeholder="搜索博文标题或内容"
+              style="width: 200px; margin-right: 10px;"
+              clearable
+              @keyup.enter="handleSearch"
+            >
+              <template #append>
+                <el-button :icon="Search" @click="handleSearch"></el-button> </template>
+            </el-input>
+            <el-button type="primary" @click="goToDashboard" v-if="isAdmin">后台管理</el-button>
+            <el-button type="danger" @click="handleLogout">登出</el-button>
+          </div>
         </div>
       </template>
 
-      <div v-if="userStore.userInfo" class="user-info">
-        <p><strong>用户名:</strong> {{ userStore.userInfo.username }}</p>
-        <p><strong>邮箱:</strong> {{ userStore.userInfo.email }}</p>
-        <p><strong>用户ID:</strong> {{ userStore.userInfo.id }}</p>
-        <p><strong>角色:</strong> {{ userStore.userInfo.roles }}</p>
-        <p><strong>注册时间:</strong> {{ formatDateTime(userStore.userInfo.createTime) }}</p>
+      <div v-if="userStore.userInfo" class="user-info-summary">
+        <el-tag type="info">欢迎，{{ userStore.userInfo.username }}！</el-tag>
+        <el-button link type="primary" @click="goToMyFavorites" v-if="userStore.token">我的收藏</el-button>
       </div>
       <div v-else>
-        <p>用户信息加载中或未登录...</p>
         <el-button type="primary" @click="goToLogin">前往登录</el-button>
       </div>
 
       <el-divider></el-divider>
 
-      <div class="navigation-links">
-        <h3>快速导航</h3>
-        <el-space wrap>
-          <el-button
-            v-if="isAdmin"
-            type="info"
-            @click="goToDashboard"
-          >
-            前往仪表盘 (管理员)
-          </el-button>
-          <el-button type="success" @click="goToSettings">前往设置 (示例)</el-button>
-        </el-space>
+      <div v-loading="loadingPosts" class="post-list">
+        <div v-if="posts?.length === 0 && !loadingPosts" class="empty-state">
+          <el-empty description="暂无博文"></el-empty>
+        </div>
+        <el-row :gutter="20">
+          <el-col v-for="post in posts" :key="post.id" :xs="24" :sm="12" :md="8" :lg="6">
+            <el-card class="post-card" shadow="hover" @click="goToPostDetail(post.slug)">
+              <img v-if="post.featuredImage" :src="post.featuredImage" class="post-card-image" alt="封面图片" />
+              <div class="post-card-content">
+                <h3 class="post-card-title">{{ post.title }}</h3>
+                <div class="post-meta">
+                  <span>作者: {{ post.authorName }}</span>
+                  <span>发布于: {{ formatDateTime(post.createdAt) }}</span>
+                </div>
+                <div class="post-tags">
+                  <el-tag v-for="tag in post.tags" :key="tag" size="small" type="info">{{ tag }}</el-tag>
+                </div>
+                <p class="post-excerpt">{{ getExcerpt(post.content) }}</p>
+                <div class="post-stats">
+                  <span><el-icon><View /></el-icon> {{ post.stats.views }}</span>
+                  <span><el-icon><ChatDotRound /></el-icon> {{ post.comments.length }}</span>
+                  <span><el-icon><Star /></el-icon> {{ post.stats.likes }}</span>
+                </div>
+              </div>
+            </el-card>
+          </el-col>
+        </el-row>
       </div>
 
+      <el-pagination
+        v-if="posts?.length > 0 || totalPosts > 0"
+        v-model:current-page="currentPage"
+        v-model:page-size="pageSize"
+        :page-sizes="[10, 20, 30, 50]"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="totalPosts"
+        @size-change="handlePageSizeChange"
+        @current-change="handleCurrentPageChange"
+        class="pagination-container"
+      />
     </el-card>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue'; // 导入 computed
+import { onMounted, ref, computed, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from '@/stores/user';
+import * as postService from '@/api/post';
+import type { Post } from '@/models/entity/Post';
+import { Search, View, ChatDotRound, Star } from '@element-plus/icons-vue';
 
 const userStore = useUserStore();
 const router = useRouter();
 
-// 计算属性：判断用户是否为管理员
-// userStore.userInfo.roles 是一个逗号分隔的字符串，例如 "ROLE_USER,ROLE_ADMIN"
+const posts = ref<Post[]>([]);
+const loadingPosts = ref(false);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const totalPosts = ref(0);
+const searchQuery = ref('');
+
 const isAdmin = computed(() => {
   if (userStore.userInfo && userStore.userInfo.roles) {
-    // 将角色字符串按逗号分割成数组，并检查是否包含 "ROLE_ADMIN"
     return userStore.userInfo.roles.split(',').includes('ROLE_ADMIN');
   }
-  return false; // 如果 userInfo 不存在或 roles 为空，则不是管理员
+  return false;
 });
 
-
-// 生命周期钩子：组件挂载后，尝试获取用户信息
-onMounted(async () => {
-  if (!userStore.userInfo && userStore.token) {
-    try {
-      const res = await userStore.fetchUserInfo(); // fetchUserInfo 返回 ApiResponse<User>
-      if (res.code !== 200 || !userStore.userInfo) { // 根据后端返回的code判断，或者userStore.userInfo是否被设置
-        ElMessage.warning('未能获取到用户信息或认证失败，请重新登录。');
-        handleLogout();
+const fetchPosts = async (query?: string) => {
+  loadingPosts.value = true;
+  try {
+    let res;
+    if (query) {
+      res = await postService.searchPosts(query);
+      if (res.code === 200 && res.data) {
+        posts.value = res.data;
+        totalPosts.value = res.data.length;
+        currentPage.value = 1;
+      } else {
+        posts.value = [];
+        totalPosts.value = 0;
+        ElMessage.error(res?.message || '搜索博文失败！');
       }
-    } catch (error) {
-      console.error('获取用户信息失败:', error);
-      ElMessage.error('获取用户信息失败，请检查网络或重新登录。');
-      handleLogout();
+    } else {
+      res = await postService.getAllPublishedPosts({
+        page: currentPage.value - 1,
+        size: pageSize.value,
+        sortBy: 'createdAt',
+        sortDir: 'DESC',
+      });
+      if (res.code === 200 && res.data) {
+        posts.value = res.data.content || [];
+        totalPosts.value = res.data.totalElements || 0;
+        currentPage.value = (res.data.number !== undefined ? res.data.number + 1 : 1);
+      } else {
+        posts.value = [];
+        totalPosts.value = 0;
+        ElMessage.error(res?.message || '获取博文列表失败！');
+      }
     }
-  } else if (!userStore.token) {
-    ElMessage.info('您尚未登录，请先登录。');
-    goToLogin();
+  } catch (error: any) {
+    console.error('获取博文列表失败:', error);
+    posts.value = [];
+    totalPosts.value = 0;
+    ElMessage.error('网络错误，无法获取博文！');
+  } finally {
+    loadingPosts.value = false;
   }
-});
+};
 
-// 处理登出逻辑
+const handlePageSizeChange = (val: number) => {
+  pageSize.value = val;
+  fetchPosts();
+};
+
+const handleCurrentPageChange = (val: number) => {
+  currentPage.value = val;
+  fetchPosts();
+};
+
+const handleSearch = () => {
+  fetchPosts(searchQuery.value);
+};
+
 const handleLogout = async () => {
   try {
     await ElMessageBox.confirm('确定要退出登录吗？', '提示', {
@@ -88,9 +164,9 @@ const handleLogout = async () => {
       cancelButtonText: '取消',
       type: 'warning',
     });
-    userStore.logout(); // 调用 Pinia store 的登出方法
+    userStore.logout();
     ElMessage.success('已成功退出登录！');
-    router.push('/login'); // 登出后跳转到登录页
+    router.push('/login');
   } catch (error) {
     if (error !== 'cancel') {
       console.error('登出失败:', error);
@@ -99,51 +175,83 @@ const handleLogout = async () => {
   }
 };
 
-// 格式化日期时间的辅助函数
 const formatDateTime = (dateTimeString: string): string => {
   if (!dateTimeString) return '';
   const date = new Date(dateTimeString);
-  // 可根据需要使用 Intl.DateTimeFormat 或第三方库进行更复杂的格式化
   return date.toLocaleString();
 };
 
-// 导航函数
+const getExcerpt = (content: string, length: number = 100): string => {
+  if (!content) return '';
+  const strippedContent = content.replace(/(<([^>]+)>)/gi, "");
+  if (strippedContent.length <= length) {
+    return strippedContent;
+  }
+  return strippedContent.substring(0, length) + '...';
+};
+
 const goToLogin = () => {
   router.push('/login');
 };
 
 const goToDashboard = () => {
-  // 在这里进行跳转前再次检查权限，虽然v-if已经控制了，但这是额外的保障
   if (isAdmin.value) {
-    ElMessage.info('正在前往仪表盘页面...');
-    router.push('/dashboard'); // 跳转到仪表盘页面
+    router.push('/dashboard');
   } else {
     ElMessage.warning('您没有权限访问仪表盘。');
-    // 也可以选择跳转到其他无权限提示页面
-    // router.push('/no-permission');
   }
 };
 
-const goToSettings = () => {
-  ElMessage.info('跳转到设置页面 (此页面尚未创建)');
-  // router.push('/settings');
+const goToPostDetail = (slug: string) => {
+  router.push(`/post/${slug}`);
 };
+
+const goToMyFavorites = () => {
+  if (!userStore.token) {
+      ElMessage.warning('请先登录以查看收藏！');
+      router.push('/login');
+      return;
+  }
+  router.push('/my-favorites');
+};
+
+onMounted(async () => {
+  if (!userStore.userInfo && userStore.token) {
+    try {
+      const res = await userStore.fetchUserInfo();
+      if (res.code !== 200 || !userStore.userInfo) {
+        ElMessage.warning('未能获取到用户信息，请重新登录。');
+        handleLogout();
+      }
+    } catch (error) {
+      console.error('获取用户信息失败:', error);
+      ElMessage.error('获取用户信息失败，请检查网络或重新登录。');
+      handleLogout();
+    }
+  }
+
+  fetchPosts();
+});
+
+watch(searchQuery, (newVal) => {
+  if (newVal === '') {
+    fetchPosts();
+  }
+});
 </script>
 
 <style scoped>
 .home-container {
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* 调整为 flex-start 让卡片在顶部 */
-  min-height: calc(100vh - 60px); /* 假设头部高度，让内容撑开页面 */
   padding: 20px;
   background-color: #f0f2f5;
+  min-height: calc(100vh - 60px);
 }
 
-.box-card {
-  width: 600px;
-  max-width: 90%;
-  margin-top: 50px; /* 顶部留一些空间 */
+.home-main-content {
+  width: 100%;
+  max-width: 1200px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
 }
 
@@ -155,18 +263,108 @@ const goToSettings = () => {
   font-weight: bold;
 }
 
-.user-info p {
-  margin-bottom: 10px;
-  font-size: 16px;
-  line-height: 1.5;
+.header-actions {
+  display: flex;
+  align-items: center;
 }
 
-.navigation-links {
-  margin-top: 20px;
-}
-
-.navigation-links h3 {
+.user-info-summary {
   margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.post-list {
+  min-height: 300px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 50px;
+  color: #909399;
+}
+
+.post-card {
+  margin-bottom: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.post-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.15);
+}
+
+.post-card-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 4px 4px 0 0;
+}
+
+.post-card-content {
+  padding: 15px;
+}
+
+.post-card-title {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-weight: bold;
   color: #303133;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.post-meta {
+  font-size: 12px;
+  color: #909399;
+  margin-bottom: 10px;
+}
+
+.post-meta span {
+  margin-right: 15px;
+}
+
+.post-tags .el-tag {
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.post-excerpt {
+  font-size: 14px;
+  color: #606266;
+  line-height: 1.6;
+  margin-top: 10px;
+  margin-bottom: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.post-stats {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: #909399;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.post-stats .el-icon {
+  margin-right: 5px;
+}
+
+.pagination-container {
+  margin-top: 25px;
+  justify-content: center;
+  display: flex;
 }
 </style>
