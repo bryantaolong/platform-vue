@@ -140,9 +140,9 @@ export function exportUsers(data: UserExportRequest): Promise<void> {
     data,
     responseType: 'blob' // 接收二进制数据
   }).then(response => {
-    // 处理文件下载
+    // 处理文件下载 - 修复：使用 response.data 而不是 response
     const filename = data.fileName ? `${data.fileName}.xlsx` : '用户数据.xlsx'; // 默认文件名
-    const url = window.URL.createObjectURL(new Blob([response]));
+    const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', filename);
@@ -168,8 +168,9 @@ export function exportAllUsers(fileName?: string, status?: number | null): Promi
     },
     responseType: 'blob' // 接收二进制数据
   }).then(response => {
+    // 修复：使用 response.data 而不是 response
     const filename = fileName ? `${fileName}.xlsx` : '用户数据.xlsx';
-    const url = window.URL.createObjectURL(new Blob([response]));
+    const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', filename);

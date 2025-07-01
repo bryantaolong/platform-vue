@@ -13,6 +13,7 @@ import MyFavorites from '@/pages/post/MyFavorites.vue' // 导入我的收藏页
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 import Profile from "@/pages/Profile.vue";
+import UserProfile from "@/pages/UserProfile.vue";
 
 const routes = [
   {
@@ -63,6 +64,12 @@ const routes = [
     component: Profile,
     name: 'Profile',
     meta: { requiresAuth: true } // 需要登录才能访问
+  },
+    {
+    path: '/user/:id', // 新增的用户主页路由，使用 :id 作为用户ID参数
+    component: UserProfile,
+    name: 'UserProfile',
+    props: true // 允许组件通过 props 接收路由参数
   },
   {
     path: '/:pathMatch(.*)*',
