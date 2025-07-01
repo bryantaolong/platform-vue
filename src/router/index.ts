@@ -7,8 +7,8 @@ import Register from '@/pages/Register.vue'
 import DashboardLayout from '@/pages/Dashboard.vue'
 import DashboardOverview from '@/pages/dashboard/Overview.vue'
 import UserManagement from '@/pages/dashboard/UserManagement.vue'
-import PostDetail from '@/pages/PostDetail.vue' // 导入博文详情页
-import MyFavorites from '@/pages/MyFavorites.vue' // 导入我的收藏页
+import PostDetail from '@/pages/post/PostDetail.vue' // 导入博文详情页
+import MyFavorites from '@/pages/post/MyFavorites.vue' // 导入我的收藏页
 
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'

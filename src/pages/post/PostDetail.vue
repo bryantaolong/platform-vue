@@ -113,11 +113,11 @@
 import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { useUserStore } from '@/stores/user';
-import * as postService from '@/api/post';
-import * as postFavoriteService from '@/api/postFavorite';
-import type { Post } from '@/models/entity/Post';
-import type { Comment } from '@/models/entity/Comment';
+import { useUserStore } from '@/stores/user.ts';
+import * as postService from '@/api/post.ts';
+import * as postFavoriteService from '@/api/postFavorite.ts';
+import type { Post } from '@/models/entity/Post.ts';
+import type { Comment } from '@/models/entity/Comment.ts';
 // 导入 Element Plus 图标
 import { View, Star, StarFilled, Edit, Delete } from '@element-plus/icons-vue';
 

@@ -56,8 +56,8 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { ElMessage } from 'element-plus';
-import * as postFavoriteService from '@/api/postFavorite';
-import type { Post } from '@/models/entity/Post';
+import * as postFavoriteService from '@/api/postFavorite.ts';
+import type { Post } from '@/models/entity/Post.ts';
 import { View, ChatDotRound, Star } from '@element-plus/icons-vue';
 
 const router = useRouter();
