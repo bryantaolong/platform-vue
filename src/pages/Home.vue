@@ -25,7 +25,13 @@
       <div class="navigation-links">
         <h3>快速导航</h3>
         <el-space wrap>
-          <el-button type="info" @click="goToDashboard">前往仪表盘 (示例)</el-button>
+          <el-button
+            v-if="isAdmin"
+            type="info"
+            @click="goToDashboard"
+          >
+            前往仪表盘 (管理员)
+          </el-button>
           <el-button type="success" @click="goToSettings">前往设置 (示例)</el-button>
         </el-space>
       </div>
@@ -35,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, computed } from 'vue'; // 导入 computed
 import { useRouter } from 'vue-router';
 import { ElMessage, ElMessageBox } from 'element-plus';
 import { useUserStore } from '@/stores/user';
@@ -43,25 +49,32 @@ import { useUserStore } from '@/stores/user';
 const userStore = useUserStore();
 const router = useRouter();
 
+// 计算属性：判断用户是否为管理员
+// userStore.userInfo.roles 是一个逗号分隔的字符串，例如 "ROLE_USER,ROLE_ADMIN"
+const isAdmin = computed(() => {
+  if (userStore.userInfo && userStore.userInfo.roles) {
+    // 将角色字符串按逗号分割成数组，并检查是否包含 "ROLE_ADMIN"
+    return userStore.userInfo.roles.split(',').includes('ROLE_ADMIN');
+  }
+  return false; // 如果 userInfo 不存在或 roles 为空，则不是管理员
+});
+
+
 // 生命周期钩子：组件挂载后，尝试获取用户信息
 onMounted(async () => {
-  // 只有当 Pinia store 中没有用户信息时才去请求
   if (!userStore.userInfo && userStore.token) {
     try {
-      await userStore.fetchUserInfo();
-      if (!userStore.userInfo) {
-        ElMessage.warning('未能获取到用户信息，请重新登录。');
-        // 如果获取失败且有token，可能是token失效，考虑登出
+      const res = await userStore.fetchUserInfo(); // fetchUserInfo 返回 ApiResponse<User>
+      if (res.code !== 200 || !userStore.userInfo) { // 根据后端返回的code判断，或者userStore.userInfo是否被设置
+        ElMessage.warning('未能获取到用户信息或认证失败，请重新登录。');
         handleLogout();
       }
     } catch (error) {
       console.error('获取用户信息失败:', error);
       ElMessage.error('获取用户信息失败，请检查网络或重新登录。');
-      // 捕获错误后，也尝试登出，防止用户停留在错误状态
       handleLogout();
     }
   } else if (!userStore.token) {
-    // 如果连token都没有，直接跳转到登录页
     ElMessage.info('您尚未登录，请先登录。');
     goToLogin();
   }
@@ -79,19 +92,19 @@ const handleLogout = async () => {
     ElMessage.success('已成功退出登录！');
     router.push('/login'); // 登出后跳转到登录页
   } catch (error) {
-    // 用户取消登出，或登出过程中出现其他错误
-    if (error !== 'cancel') { // 排除用户点击取消的情况
+    if (error !== 'cancel') {
       console.error('登出失败:', error);
       ElMessage.error('登出失败，请重试。');
     }
   }
 };
 
-// 格式化日期时间的辅助函数 (可选)
+// 格式化日期时间的辅助函数
 const formatDateTime = (dateTimeString: string): string => {
   if (!dateTimeString) return '';
   const date = new Date(dateTimeString);
-  return date.toLocaleString(); // 或使用更复杂的日期格式化库如 dayjs, momentjs
+  // 可根据需要使用 Intl.DateTimeFormat 或第三方库进行更复杂的格式化
+  return date.toLocaleString();
 };
 
 // 导航函数
@@ -100,13 +113,20 @@ const goToLogin = () => {
 };
 
 const goToDashboard = () => {
-  ElMessage.info('跳转到仪表盘页面 (此页面尚未创建)');
-  // router.push('/dashboard'); // 实际跳转时取消注释
+  // 在这里进行跳转前再次检查权限，虽然v-if已经控制了，但这是额外的保障
+  if (isAdmin.value) {
+    ElMessage.info('正在前往仪表盘页面...');
+    router.push('/dashboard'); // 跳转到仪表盘页面
+  } else {
+    ElMessage.warning('您没有权限访问仪表盘。');
+    // 也可以选择跳转到其他无权限提示页面
+    // router.push('/no-permission');
+  }
 };
 
 const goToSettings = () => {
   ElMessage.info('跳转到设置页面 (此页面尚未创建)');
-  // router.push('/settings'); // 实际跳转时取消注释
+  // router.push('/settings');
 };
 </script>
 
