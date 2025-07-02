@@ -9,6 +9,7 @@ import Dashboard from "@/views/admin/Dashboard.vue";
 import Users from "@/views/admin/Users.vue";
 import AdminLayout from "@/layout/AdminLayout.vue";
 import Profile from "@/views/Profile.vue";
+import ProfileLayout from "@/layout/ProfileLayout.vue";
 
 const routes = [
     {
@@ -27,7 +28,7 @@ const routes = [
     },
     {
         path: '/user',
-        component: BlankLayout,
+        component: ProfileLayout,
         redirect: '/profile',
         children: [
             {

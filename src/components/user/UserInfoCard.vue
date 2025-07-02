@@ -1,50 +1,66 @@
 <template>
   <el-card
-      class="user-info-card bg-white/90 backdrop-blur-md shadow-xl rounded-2xl p-6 mb-6 transform transition-all hover:scale-102">
-    <el-form :model="user" label-width="120px" class="space-y-6">
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <el-form-item label="用户名" class="mb-0">
-          <el-input v-model="user.username" disabled class="rounded-lg border-gray-300 focus:border-blue-500"/>
-        </el-form-item>
-        <el-form-item label="邮箱" class="mb-0">
-          <el-input v-model="user.email" disabled class="rounded-lg border-gray-300 focus:border-blue-500"/>
-        </el-form-item>
+    style="max-width: 480px"
+    class="user-info-card bg-white/90 backdrop-blur-md shadow-xl rounded-2xl p-6 mb-6 transform transition-all hover:scale-105"
+  >
+    <template #header>
+      <div class="card-header flex justify-between items-center">
+        <span class="text-lg font-bold text-gray-800">{{ user.username }}</span>
       </div>
-      <el-form-item label="角色" class="mb-0">
+    </template>
+
+    <!-- 用户信息展示 -->
+    <div class="space-y-4">
+      <div class="flex items-center space-x-3">
+        <i class="el-icon-user text-blue-500"></i>
+        <span class="font-medium text-gray-700">用户名：</span>
+        <span class="text-gray-900">{{ user.username }}</span>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <i class="el-icon-message text-red-500"></i>
+        <span class="font-medium text-gray-700">邮箱：</span>
+        <span class="text-gray-900">{{ user.email }}</span>
+      </div>
+
+      <div class="flex items-center space-x-3">
+        <i class="el-icon-s-custom text-green-500"></i>
+        <span class="font-medium text-gray-700">角色：</span>
         <div class="flex flex-wrap gap-2">
           <el-tag
-              v-for="role in user.roles.split(',')"
-              :key="role"
-              size="small"
-              type="info"
-              class="text-xs font-semibold bg-blue-100 text-blue-800 rounded-full px-3 py-1"
+            v-for="role in user.roles.split(',')"
+            :key="role"
+            size="small"
+            type="info"
+            class="text-xs font-semibold bg-blue-100 text-blue-800 rounded-full px-3 py-1"
           >
             {{ role === 'ROLE_ADMIN' ? '管理员' : '普通用户' }}
           </el-tag>
         </div>
-      </el-form-item>
-      <el-form-item class="mb-0">
-        <div class="flex space-x-4">
-          <el-button
-              type="primary"
-              @click="handleUpdate"
-              :loading="loading"
-              class="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg px-6 py-2 transition-all"
-          >
-            更新资料
-          </el-button>
-          <el-button
-              type="info"
-              @click="handleModifyPassword"
-              :loading="loading"
-              class="bg-gradient-to-r from-teal-500 to-teal-600 text-white hover:from-teal-600 hover:to-teal-700 rounded-lg px-6 py-2 transition-all"
-          >
-            修改密码
-          </el-button>
-        </div>
-      </el-form-item>
-    </el-form>
+      </div>
+    </div>
+
+    <!-- 按钮放在 footer -->
+    <template #footer>
+      <div class="flex justify-end space-x-3 mt-2">
+        <el-button
+          type="primary"
+          @click="handleUpdate"
+          :loading="loading"
+          class="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg px-5 py-2 transition-all"
+        >
+          更新资料
+        </el-button>
+        <el-button
+          type="info"
+          @click="handleModifyPassword"
+          :loading="loading"
+          class="bg-gradient-to-r from-teal-500 to-teal-600 text-white hover:from-teal-600 hover:to-teal-700 rounded-lg px-5 py-2 transition-all"
+        >
+          修改密码
+        </el-button>
+      </div>
+    </template>
   </el-card>
 </template>
 
