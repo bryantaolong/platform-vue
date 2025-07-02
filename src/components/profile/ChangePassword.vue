@@ -1,11 +1,11 @@
 <!-- src/components/profile/ChangePassword.vue -->
 <template>
   <el-dialog
-    v-model="dialogVisible"
-    title="修改密码"
-    width="500px"
-    :before-close="handleClose"
-    destroy-on-close
+      v-model="dialogVisible"
+      title="修改密码"
+      width="500px"
+      :before-close="handleClose"
+      destroy-on-close
   >
     <el-form :model="form" :rules="rules" ref="changePasswordFormRef" label-width="100px">
       <el-form-item label="旧密码" prop="oldPassword">
@@ -15,7 +15,8 @@
         <el-input type="password" v-model="form.newPassword" show-password placeholder="请输入新密码"></el-input>
       </el-form-item>
       <el-form-item label="确认新密码" prop="confirmPassword">
-        <el-input type="password" v-model="form.confirmPassword" show-password placeholder="请再次输入新密码"></el-input>
+        <el-input type="password" v-model="form.confirmPassword" show-password
+                  placeholder="请再次输入新密码"></el-input>
       </el-form-item>
     </el-form>
     <template #footer>
@@ -30,11 +31,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue';
-import { ElMessage, ElMessageBox, FormInstance, FormRules } from 'element-plus';
-import { useUserStore } from '@/stores/user';
+import {ref, reactive, watch} from 'vue';
+import {
+  ElMessage,
+  FormRules,
+  FormInstance,
+} from 'element-plus';
+import {useUserStore} from '@/stores/user';
 import * as userService from '@/api/user';
-import type { ChangePasswordRequest } from '@/models/request/ChangePasswordRequest';
+import type {ChangePasswordRequest} from '@/models/request/ChangePasswordRequest';
 
 // 定义组件的 props，用于控制弹窗的显示
 const props = defineProps<{
@@ -56,7 +61,9 @@ const form = reactive<ChangePasswordRequest & { confirmPassword: string }>({
 });
 
 // 自定义验证规则：确认新密码
-const validateConfirmPassword = (rule: any, value: string, callback: any) => {
+const validateConfirmPassword = (rule: any,
+                                 value: string,
+                                 callback: any) => {
   if (value === '') {
     callback(new Error('请再次输入新密码'));
   } else if (value !== form.newPassword) {
@@ -69,12 +76,12 @@ const validateConfirmPassword = (rule: any, value: string, callback: any) => {
 // 表单验证规则
 const rules = reactive<FormRules<typeof form>>({
   oldPassword: [
-    { required: true, message: '请输入旧密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur' },
+    {required: true, message: '请输入旧密码', trigger: 'blur'},
+    {min: 6, max: 20, message: '密码长度在 6 到 20 个字符', trigger: 'blur'},
   ],
   newPassword: [
-    { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '新密码长度在 6 到 20 个字符', trigger: 'blur' },
+    {required: true, message: '请输入新密码', trigger: 'blur'},
+    {min: 6, max: 20, message: '新密码长度在 6 到 20 个字符', trigger: 'blur'},
     {
       validator: (rule, value, callback) => {
         if (value === form.oldPassword) {
@@ -87,8 +94,8 @@ const rules = reactive<FormRules<typeof form>>({
     },
   ],
   confirmPassword: [
-    { required: true, message: '请确认新密码', trigger: 'blur' },
-    { validator: validateConfirmPassword, trigger: 'blur' },
+    {required: true, message: '请确认新密码', trigger: 'blur'},
+    {validator: validateConfirmPassword, trigger: 'blur'},
   ],
 });
 
@@ -145,7 +152,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 };
 
 // 为了在 submitForm 中使用 router.push，需要引入 useRouter
-import { useRouter } from 'vue-router';
+import {useRouter} from 'vue-router';
+
 const router = useRouter();
 </script>
 

@@ -2,7 +2,7 @@
 import request from '@/utils/request';
 import type { Result } from '@/models/response/Result';
 import type { User } from '@/models/entity/User'; // Assuming User entity is needed for lists
-import type { PageResult } from '@/api/user'; // Re-using PageResult from user API
+import type { PageResult } from '@/models/response/PageResult'; // Re-using PageResult from user API
 
 /**
  * User Follow related API request module
