@@ -62,7 +62,7 @@ const submitForm = async () => {
     const valid = await loginFormRef.value.validate();
     if (valid) {
       // loginForm 已经是 LoginRequest 类型，可以直接传入
-      const res = await userStore.loginAction(loginForm);
+      const res = await userStore.login(loginForm);
 
       if (res && res.code === 200) {
         ElMessage.success('登录成功！');

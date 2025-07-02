@@ -16,13 +16,24 @@ export const useUserStore = defineStore('user', {
     // userInfo 可以是 User 类型或者 null
     userInfo: null as User | null,
   }),
+
+  getters: {
+    /**
+     * 判断用户是否已登录
+     * 基于 token 和 userInfo 的存在性来判断
+     */
+    isLoggedIn(): boolean {
+      return !!(this.token && this.userInfo)
+    }
+  },
+
   actions: {
     /**
      * 用户登录操作
      * @param form 登录请求数据
-     * @returns 包含登录结果的ApiResponse
+     * @returns 包含登录结果的 Result
      */
-    async loginAction(form: LoginRequest): Promise<Result<string>> {
+    async login(form: LoginRequest): Promise<Result<string>> {
       // login 函数现在明确返回 ApiResponse<LoginResponseData> 类型
       const res = await login(form)
       if (res.code === 200) {
@@ -37,9 +48,9 @@ export const useUserStore = defineStore('user', {
     /**
      * 用户注册操作
      * @param form 注册请求数据
-     * @returns 包含注册结果的ApiResponse (data为User实体)
+     * @returns 包含注册结果的 Result (data为User实体)
      */
-    async registerAction(form: RegisterRequest): Promise<Result<User>> {
+    async register(form: RegisterRequest): Promise<Result<User>> {
       // register 函数明确返回 ApiResponse<User> 类型
       return await register(form)
     },
@@ -64,6 +75,16 @@ export const useUserStore = defineStore('user', {
       this.token = ''
       this.userInfo = null
       localStorage.removeItem('token')
+    },
+
+    /**
+     * 初始化用户状态
+     * 在应用启动时调用，如果有 token 但没有用户信息，则获取用户信息
+     */
+    async initUserState() {
+      if (this.token && !this.userInfo) {
+        await this.fetchUserInfo()
+      }
     }
   }
 })

@@ -1,90 +1,61 @@
 // src/router/index.ts
 import {createRouter, createWebHistory} from 'vue-router'
-import Home from '@/pages/Home.vue'
-import Login from '@/pages/Login.vue'
-import NotFound from '@/pages/NotFound.vue'
-import Register from '@/pages/Register.vue'
-import DashboardLayout from '@/pages/Dashboard.vue'
-import DashboardOverview from '@/pages/dashboard/Overview.vue'
-import UserManagement from '@/pages/dashboard/UserManagement.vue'
-import PostDetail from '@/pages/post/PostDetail.vue' // 导入博文详情页
-import MyFavorites from '@/pages/post/MyFavorites.vue' // 导入我的收藏页
-
 import {useUserStore} from '@/stores/user'
 import {ElMessage} from 'element-plus'
-import Profile from "@/pages/Profile.vue";
-import UserProfile from "@/pages/UserProfile.vue";
-import ChatView from "@/pages/ChatView.vue";
-import FriendList from "@/pages/FriendList.vue";
+import DefaultLayout from "@/layout/DefaultLayout.vue";
+import BlankLayout from "@/layout/BlankLayout.vue";
+import NotFound from "@/views/NotFound.vue";
+import Dashboard from "@/views/admin/Dashboard.vue";
+import Users from "@/views/admin/Users.vue";
+import AdminLayout from "@/layout/AdminLayout.vue";
+import Profile from "@/views/Profile.vue";
 
 const routes = [
     {
         path: '/',
-        component: Home
-    },
-    {
-        path: '/login',
-        component: Login
-    },
-    {
-        path: '/register',
-        component: Register
-    },
-    {
-        path: '/post/:slug', // 博文详情路由，使用 slug 作为参数
-        component: PostDetail,
-        name: 'PostDetail'
-    },
-    {
-        path: '/my-favorites', // 我的收藏路由
-        component: MyFavorites,
-        name: 'MyFavorites',
-        meta: {requiresAuth: true} // 需要登录才能访问
-    },
-    {
-        path: '/dashboard',
-        component: DashboardLayout,
-        redirect: '/dashboard/overview',
-        meta: {requiresAdmin: true},
+        component: DefaultLayout,
         children: [
-            {
-                path: 'overview',
-                component: DashboardOverview,
-                name: 'DashboardOverview',
-                meta: {requiresAdmin: true}
-            },
-            {
-                path: 'user-management',
-                component: UserManagement,
-                name: 'UserManagement',
-                meta: {requiresAdmin: true}
-            }
+            {path: '', name: 'Home', component: () => import('@/views/Home.vue')}
         ]
     },
     {
-        path: '/profile', // 个人中心路由
-        component: Profile,
-        name: 'Profile',
-        meta: {requiresAuth: true} // 需要登录才能访问
+        path: '/login',
+        component: BlankLayout,
+        children: [
+            {path: '', name: 'Login', component: () => import('@/views/Login.vue')}
+        ]
     },
     {
-        path: '/user/:id', // 新增的用户主页路由，使用 :id 作为用户ID参数
-        component: UserProfile,
-        name: 'UserProfile',
-        props: true // 允许组件通过 props 接收路由参数
+        path: '/user',
+        component: BlankLayout,
+        redirect: '/profile',
+        children: [
+            {
+                path: '',
+                component: Profile,
+                name: 'Profile',
+            },
+        ]
     },
     {
-        path: '/friends',
-        component: FriendList,
-        name: 'FriendList',
-        meta: {requiresAuth: true} // 需要登录才能查看好友列表
-    },
-    {
-        path: '/chat/:otherUserId', // 对方用户ID
-        component: ChatView,
-        name: 'ChatView',
-        props: true, // 允许组件通过 props 接收路由参数 (otherUserId)
-        meta: {requiresAuth: true} // 需要登录才能聊天
+        path: '/admin',
+        component: AdminLayout,
+        redirect: '/dashboard',
+        meta: {requiresAdmin: true},
+        children: [
+            {
+                path: '',
+                component: Dashboard,
+                name: 'Dashboard',
+                meta: {requiresAdmin: true}
+            },
+            {
+                path: 'users',
+                component: Users,
+                name: 'Users',
+                meta: {requiresAdmin: true}
+            }
+        ]
     },
     {
         path: '/:pathMatch(.*)*',

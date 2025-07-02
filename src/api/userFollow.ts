@@ -13,10 +13,10 @@ import type { PageResult } from '@/models/response/PageResult'; // Re-using Page
  * @param followingId The ID of the user to follow.
  */
 export function followUser(followingId: number): Promise<Result<boolean>> {
-  return request({
-    url: `/api/user_follow/follow/${followingId}`,
-    method: 'post',
-  });
+    return request({
+        url: `/api/user_follow/follow/${followingId}`,
+        method: 'post',
+    });
 }
 
 /**
@@ -24,10 +24,10 @@ export function followUser(followingId: number): Promise<Result<boolean>> {
  * @param followingId The ID of the user to unfollow.
  */
 export function unfollowUser(followingId: number): Promise<Result<boolean>> {
-  return request({
-    url: `/api/user_follow/unfollow/${followingId}`,
-    method: 'post',
-  });
+    return request({
+        url: `/api/user_follow/unfollow/${followingId}`,
+        method: 'post',
+    });
 }
 
 /**
@@ -37,15 +37,15 @@ export function unfollowUser(followingId: number): Promise<Result<boolean>> {
  * @param pageSize Number of items per page.
  */
 export function getFollowingUsers(
-  userId: number,
-  pageNum: number = 1,
-  pageSize: number = 10
+    userId: number,
+    pageNum: number = 1,
+    pageSize: number = 10
 ): Promise<Result<PageResult<User>>> {
-  return request({
-    url: `/api/user_follow/following/${userId}`,
-    method: 'get',
-    params: { pageNum, pageSize },
-  });
+    return request({
+        url: `/api/user_follow/following/${userId}`,
+        method: 'get',
+        params: { pageNum, pageSize },
+    });
 }
 
 /**
@@ -55,15 +55,15 @@ export function getFollowingUsers(
  * @param pageSize Number of items per page.
  */
 export function getFollowerUsers(
-  userId: number,
-  pageNum: number = 1,
-  pageSize: number = 10
+    userId: number,
+    pageNum: number = 1,
+    pageSize: number = 10
 ): Promise<Result<PageResult<User>>> {
-  return request({
-    url: `/api/user_follow/followers/${userId}`,
-    method: 'get',
-    params: { pageNum, pageSize },
-  });
+    return request({
+        url: `/api/user_follow/followers/${userId}`,
+        method: 'get',
+        params: { pageNum, pageSize },
+    });
 }
 
 /**
@@ -71,8 +71,8 @@ export function getFollowerUsers(
  * @param followingId The ID of the user to check if currently following.
  */
 export function isFollowing(followingId: number): Promise<Result<boolean>> {
-  return request({
-    url: `/api/user_follow/check/${followingId}`,
-    method: 'get',
-  });
+    return request({
+        url: `/api/user_follow/check/${followingId}`,
+        method: 'get',
+    });
 }

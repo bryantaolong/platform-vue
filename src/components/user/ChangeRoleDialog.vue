@@ -27,8 +27,8 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
 import { ElMessage, FormInstance } from 'element-plus';
-import * as userService from '@/api/user';
-import type { User } from '@/models/entity/User';
+import * as userService from '@/api/user.ts';
+import type { User } from '@/models/entity/User.ts';
 
 // 定义组件的 props
 const props = defineProps<{

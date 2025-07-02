@@ -1,4 +1,4 @@
-<!-- src/pages/dashboard/UserManagement.vue -->
+<!-- src/views/dashboard/Users.vue -->
 <template>
   <div class="user-management-container">
     <el-card class="user-management-card">
@@ -102,7 +102,7 @@
     />
 
     <!-- 管理员更改密码弹窗组件 -->
-    <AdminChangePasswordDialog
+    <ChangePasswordDialog
       :visible="showChangePasswordDialog"
       :user-data="currentOperateUser"
       @update:visible="showChangePasswordDialog = $event"
@@ -129,7 +129,7 @@ import type { User } from '@/models/entity/User';
 // 导入拆分后的组件
 import EditUserDialog from '@/components/user/EditUserDialog.vue';
 import ChangeRoleDialog from '@/components/user/ChangeRoleDialog.vue';
-import AdminChangePasswordDialog from '@/components/user/AdminChangePasswordDialog.vue';
+import ChangePasswordDialog from '@/components/user/ChangePasswordDialog.vue';
 import ExportUsersDialog from '@/components/user/ExportUsersDialog.vue';
 
 const userStore = useUserStore();

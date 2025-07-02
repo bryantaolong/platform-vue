@@ -37,8 +37,8 @@
 <script setup lang="ts">
 import { ref, reactive, watch, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
-import * as userService from '@/api/user';
-import type { UserExportRequest } from '@/models/request/UserExportRequest';
+import * as userService from '@/api/user.ts';
+import type { UserExportRequest } from '@/models/request/UserExportRequest.ts';
 
 // 定义组件的 props
 const props = defineProps<{

@@ -5,9 +5,7 @@
  * @template T 表示实际业务数据data的类型
  */
 export interface Result<T = any> {
-  code: number;    // 业务状态码
-
-  message: string; // 业务消息
-
-  data: T;         // 实际的业务数据
+    code: number;    // 业务状态码
+    message: string; // 业务消息
+    data: T;         // 实际的业务数据
 }
