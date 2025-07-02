@@ -5,15 +5,7 @@ import type { User } from '@/models/entity/User';
 import type { UserUpdateRequest } from '@/models/request/UserUpdateRequest';
 import type { ChangePasswordRequest } from '@/models/request/ChangePasswordRequest';
 import type { UserExportRequest } from '@/models/request/UserExportRequest';
-
-// 定义后端分页响应的结构
-export interface PageResult<T> {
-  records: T[];
-  total: number;
-  size: number;
-  current: number;
-  pages: number;
-}
+import type {PageResult} from "@/models/response/PageResult.ts";
 
 /**
  * 用户相关的 RESTful API 请求模块
