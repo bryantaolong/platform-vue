@@ -2,7 +2,7 @@
 import request from '@/utils/request';
 import type { Result } from '@/models/response/Result';
 import type { User } from '@/models/entity/User'; // Assuming User entity is needed for lists
-import type { PageResult } from '@/models/response/PageResult'; // Re-using PageResult from user API
+import type { MyBatisPlusPageResult } from '@/models/response/MyBatisPlusPageResult.ts'; // Re-using MongoPageResult from user API
 
 /**
  * User Follow related API request module
@@ -40,7 +40,7 @@ export function getFollowingUsers(
     userId: number,
     pageNum: number = 1,
     pageSize: number = 10
-): Promise<Result<PageResult<User>>> {
+): Promise<Result<MyBatisPlusPageResult<User>>> {
     return request({
         url: `/api/user_follow/following/${userId}`,
         method: 'get',
@@ -58,7 +58,7 @@ export function getFollowerUsers(
     userId: number,
     pageNum: number = 1,
     pageSize: number = 10
-): Promise<Result<PageResult<User>>> {
+): Promise<Result<MyBatisPlusPageResult<User>>> {
     return request({
         url: `/api/user_follow/followers/${userId}`,
         method: 'get',

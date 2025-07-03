@@ -5,7 +5,7 @@ import type { User } from '@/models/entity/User';
 import type { UserUpdateRequest } from '@/models/request/UserUpdateRequest';
 import type { ChangePasswordRequest } from '@/models/request/ChangePasswordRequest';
 import type { UserExportRequest } from '@/models/request/UserExportRequest';
-import type {PageResult} from "@/models/response/PageResult.ts";
+import type {MyBatisPlusPageResult} from "@/models/response/MyBatisPlusPageResult.ts";
 
 /**
  * 用户相关的 RESTful API 请求模块
@@ -22,7 +22,7 @@ export function getAllUsers(params?: {
     username?: string;
     email?: string;
     status?: number;
-}): Promise<Result<PageResult<User>>> {
+}): Promise<Result<MyBatisPlusPageResult<User>>> {
     return request({
         url: '/api/user/all',
         method: 'get',
