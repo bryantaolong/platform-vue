@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+import { useUserStore } from '@/stores/user.ts'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()

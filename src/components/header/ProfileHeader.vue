@@ -13,22 +13,11 @@
   <!-- Title or other content if needed -->
   <h2 class="user-center">个人中心</h2>
 
-  <LogoutButton v-if="user" @logout="handleLogout"/>
+  <user-avatar/>
 </template>
 
 <script setup lang="ts">
-import LogoutButton from "@/components/user/LogoutButton.vue";
-import {useUserStore} from "@/stores/user.ts";
-import {ref} from "vue";
-import type {User} from "@/models/entity/User.ts";
-
-const userStore = useUserStore();
-const user = ref<User | null>(userStore.userInfo);
-
-const handleLogout = () => {
-  userStore.logout();
-  window.location.href = '/login';
-};
+import UserAvatar from "@/components/header/profile/UserAvatar.vue";
 </script>
 
 <style scoped>

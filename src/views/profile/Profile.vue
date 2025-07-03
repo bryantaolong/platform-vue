@@ -24,10 +24,10 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user.ts';
 import UserInfoCard from '@/components/user/UserInfoCard.vue';
 import ChangePasswordDialog from '@/components/user/ChangePasswordDialog.vue';
-import type { User } from '@/models/entity/User';
+import type { User } from '@/models/entity/User.ts';
 
 const userStore = useUserStore();
 const user = ref<User | null>(userStore.userInfo);

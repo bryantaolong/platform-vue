@@ -4,11 +4,7 @@ import {useUserStore} from '@/stores/user'
 import {ElMessage} from 'element-plus'
 import DefaultLayout from "@/layout/DefaultLayout.vue";
 import BlankLayout from "@/layout/BlankLayout.vue";
-import NotFound from "@/views/NotFound.vue";
-import Dashboard from "@/views/admin/Dashboard.vue";
-import Users from "@/views/admin/Users.vue";
 import AdminLayout from "@/layout/AdminLayout.vue";
-import Profile from "@/views/Profile.vue";
 import ProfileLayout from "@/layout/ProfileLayout.vue";
 
 const routes = [
@@ -16,14 +12,22 @@ const routes = [
         path: '/',
         component: DefaultLayout,
         children: [
-            {path: '', name: 'Home', component: () => import('@/views/Home.vue')}
+            {
+                path: '',
+                name: 'Home',
+                component: () => import('@/views/Home.vue')
+            }
         ]
     },
     {
         path: '/login',
         component: BlankLayout,
         children: [
-            {path: '', name: 'Login', component: () => import('@/views/Login.vue')}
+            {
+                path: '',
+                name: 'Login',
+                component: () => import('@/views/Login.vue')
+            }
         ]
     },
     {
@@ -33,9 +37,14 @@ const routes = [
         children: [
             {
                 path: '',
-                component: Profile,
                 name: 'Profile',
+                component: () => import('@/views/profile/Profile.vue'),
             },
+            {
+                path: 'settings',
+                name: 'Settings',
+                component: () => import('@/views/profile/Settings.vue'),
+            }
         ]
     },
     {
@@ -46,14 +55,14 @@ const routes = [
         children: [
             {
                 path: '',
-                component: Dashboard,
                 name: 'Dashboard',
+                component: () => import('@/views/admin/Dashboard.vue'),
                 meta: {requiresAdmin: true}
             },
             {
                 path: 'users',
-                component: Users,
                 name: 'Users',
+                component: () => import('@/views/admin/Users.vue'),
                 meta: {requiresAdmin: true}
             }
         ]
@@ -61,7 +70,7 @@ const routes = [
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
-        component: NotFound
+        component: () => import('@/views/NotFound.vue'),
     }
 ]
 

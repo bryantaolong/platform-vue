@@ -7,7 +7,6 @@
       size="large"
       class="flex items-center px-6 py-2 rounded-lg shadow-sm hover:shadow-md transition-all duration-300"
     >
-      <el-icon class="mr-2"><SwitchButton /></el-icon>
       退出登录
     </el-button>
   </div>
@@ -16,7 +15,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { ElMessage } from 'element-plus';
-import { SwitchButton } from '@element-plus/icons-vue';
 
 const emit = defineEmits(['logout']);
 const loading = ref(false);
