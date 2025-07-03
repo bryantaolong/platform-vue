@@ -5,7 +5,6 @@ import {ElMessage} from 'element-plus'
 import DefaultLayout from "@/layout/DefaultLayout.vue";
 import BlankLayout from "@/layout/BlankLayout.vue";
 import AdminLayout from "@/layout/AdminLayout.vue";
-import ProfileLayout from "@/layout/ProfileLayout.vue";
 
 const routes = [
     {
@@ -31,20 +30,41 @@ const routes = [
         ]
     },
     {
+        path: '/register',
+        component: BlankLayout,
+        children: [
+            {
+                path: '',
+                name: 'Register',
+                component: () => import('@/views/Register.vue')
+            }
+        ]
+    },
+    {
         path: '/user',
-        component: ProfileLayout,
+        component: DefaultLayout,
         redirect: '/profile',
         children: [
             {
                 path: '',
                 name: 'Profile',
-                component: () => import('@/views/profile/Profile.vue'),
+                component: () => import('@/views/Profile.vue'),
             },
             {
                 path: 'settings',
                 name: 'Settings',
                 component: () => import('@/views/profile/Settings.vue'),
-            }
+            },
+            {
+                path: 'following',
+                name: 'following',
+                component: () => import('@/views/profile/Following.vue'),
+            },
+            {
+                path: 'followers',
+                name: 'followers',
+                component: () => import('@/views/profile/Followers.vue'),
+            },
         ]
     },
     {

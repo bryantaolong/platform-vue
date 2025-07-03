@@ -12,10 +12,9 @@
 </template>
 
 <script setup lang="ts">
-import SearchBox from '@/components/header/default/SearchBox.vue'
-import UserAvatar from "@/components/header/default/UserAvatar.vue";
+import SearchBox from '@/components/header/SearchBox.vue'
+import UserAvatar from "@/components/header/UserAvatar.vue";
 </script>
-
 
 <style scoped>
 .logo {

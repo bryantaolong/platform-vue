@@ -127,10 +127,10 @@ import * as userService from '@/api/user';
 import type { User } from '@/models/entity/User';
 
 // 导入拆分后的组件
-import EditUserDialog from '@/components/user/EditUserDialog.vue';
-import ChangeRoleDialog from '@/components/user/ChangeRoleDialog.vue';
-import ChangePasswordDialog from '@/components/user/ChangePasswordDialog.vue';
-import ExportUsersDialog from '@/components/user/ExportUsersDialog.vue';
+import EditUserDialog from '@/components/user/operations/EditUserDialog.vue';
+import ChangeRoleDialog from '@/components/user/operations/admin/ChangeRoleDialog.vue';
+import ChangePasswordDialog from '@/components/user/operations/ChangePasswordDialog.vue';
+import ExportUsersDialog from '@/components/user/operations/admin/ExportUsersDialog.vue';
 
 const userStore = useUserStore();
 const router = useRouter(); // 获取 router 实例

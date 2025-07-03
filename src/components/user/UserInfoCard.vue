@@ -1,70 +1,50 @@
 <template>
   <el-card
-      style="max-width: 480px"
+      style="max-width: 800px"
       class="user-info-card bg-white/90 backdrop-blur-md shadow-xl rounded-2xl p-6 mb-6 transform transition-all hover:scale-105"
   >
-    <template #header>
-      <div class="card-header flex justify-between items-center">
-        <span class="text-lg font-bold text-gray-800">{{ user.username }}</span>
-      </div>
-    </template>
+    <el-container>
+      <el-aside>
+        <el-avatar
+            src="https://i.pravatar.cc/40"
+            shape="square"
+            :size="150"
+        />
+      </el-aside>
 
-    <!-- 用户信息展示 -->
-    <div class="space-y-4">
-      <div class="flex items-center space-x-3">
-        <i class="el-icon-message text-red-500"></i>
-        <span class="font-medium text-gray-700">邮箱：</span>
-        <span class="text-gray-900">{{ user.email }}</span>
-      </div>
+      <el-main>
+        <div class="left">
+          <div>
+            <h2>{{ user.username }}</h2>
+          </div>
 
-      <div class="flex items-center space-x-3">
-        <i class="el-icon-s-custom text-green-500"></i>
-        <span class="font-medium text-gray-700">角色：</span>
-        <div class="flex flex-wrap gap-2">
-          <el-tag
-              v-for="role in user.roles.split(',')"
-              :key="role"
-              size="small"
-              type="info"
-              class="text-xs font-semibold bg-blue-100 text-blue-800 rounded-full px-3 py-1"
-          >
-            {{ role === 'ROLE_ADMIN' ? '管理员' : '普通用户' }}
-          </el-tag>
+          <!-- 关注与粉丝统计 -->
+          <p>
+            <span @click="handleViewFollowing">关注 {{ followingCount }}</span>
+            <span @click="handleViewFollowers">粉丝 {{ followerCount }}</span>
+          </p>
         </div>
-      </div>
-    </div>
 
-    <!-- 关注与粉丝统计 -->
-    <div class="mt-6 pt-4 border-t border-gray-200 flex justify-center space-x-8">
-      <div class="text-center">
-        <p class="text-sm text-gray-500">关注 {{ followingCount }}</p>
-      </div>
-      <div class="text-center">
-        <p class="text-sm text-gray-500">粉丝 {{ followerCount }}</p>
-      </div>
-    </div>
-
-    <!-- 按钮放在 footer -->
-    <template #footer>
-      <div class="flex justify-end space-x-3 mt-2">
-        <el-button
-            type="primary"
-            @click="handleUpdate"
-            :loading="loading"
-            class="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg px-5 py-2 transition-all"
-        >
-          更新资料
-        </el-button>
-        <el-button
-            type="info"
-            @click="handleModifyPassword"
-            :loading="loading"
-            class="bg-gradient-to-r from-teal-500 to-teal-600 text-white hover:from-teal-600 hover:to-teal-700 rounded-lg px-5 py-2 transition-all"
-        >
-          修改密码
-        </el-button>
-      </div>
-    </template>
+        <div class="flex justify-end space-x-3 mt-2">
+          <el-button
+              type="primary"
+              @click="handleUpdate"
+              :loading="loading"
+              class="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg px-5 py-2 transition-all"
+          >
+            更新资料
+          </el-button>
+          <el-button
+              type="info"
+              @click="handleModifyPassword"
+              :loading="loading"
+              class="bg-gradient-to-r from-teal-500 to-teal-600 text-white hover:from-teal-600 hover:to-teal-700 rounded-lg px-5 py-2 transition-all"
+          >
+            修改密码
+          </el-button>
+        </div>
+      </el-main>
+    </el-container>
   </el-card>
 </template>
 
@@ -137,29 +117,17 @@ const handleModifyPassword = async () => {
 
 // 跳转到关注列表页
 const handleViewFollowing = () => {
-  router.push(`/user/following/${props.user.id}`);
+  router.push(`/user/following`);
 };
 
 // 跳转到粉丝列表页
 const handleViewFollowers = () => {
-  router.push(`/user/followers/${props.user.id}`);
+  router.push(`/user/followers`);
 };
 </script>
 
 <style scoped>
 .user-info-card {
   @apply border-0;
-}
-
-.el-form-item__label {
-  @apply text-gray-700 font-medium text-base;
-}
-
-.el-input__inner {
-  @apply text-gray-900;
-}
-
-.el-tag {
-  @apply shadow-md;
 }
 </style>
