@@ -7,17 +7,17 @@
         <p v-else-if="!pageData.content.length" class="no-data">暂无文章</p>
 
         <el-card
-          v-for="post in pageData.content"
-          :key="post.id"
-          class="post-card"
-          shadow="hover"
-          @click="handlePostClick(post.id!)"
+            v-for="post in pageData.content"
+            :key="post.id"
+            class="post-card"
+            shadow="hover"
+            @click="handlePostClick(post.id!)"
         >
           <img
-            v-if="post.featuredImage"
-            :src="post.featuredImage"
-            class="featured-image"
-            alt="文章封面图"
+              v-if="post.featuredImage"
+              :src="post.featuredImage"
+              class="featured-image"
+              alt="文章封面图"
           >
 
           <div class="post-content">
@@ -25,9 +25,9 @@
 
             <div class="post-meta">
               <img
-                src="https://i.pravatar.cc/40"
-                alt="作者头像"
-                class="avatar"
+                  src="https://i.pravatar.cc/40"
+                  alt="作者头像"
+                  class="avatar"
               >
               <span>作者：{{ post.authorName || '匿名' }}</span>
               <span>•</span>
@@ -36,11 +36,11 @@
 
             <div class="post-tags">
               <el-tag
-                v-for="tag in post.tags || []"
-                :key="tag"
-                size="small"
-                type="info"
-                class="tag"
+                  v-for="tag in post.tags || []"
+                  :key="tag"
+                  size="small"
+                  type="info"
+                  class="tag"
               >
                 {{ tag }}
               </el-tag>
@@ -52,15 +52,15 @@
       <!-- 分页栏 -->
       <div class="pagination-wrapper" v-if="pageData.totalElements > 0">
         <el-pagination
-          v-model:current-page="pagination.current"
-          v-model:page-size="pagination.size"
-          :total="pageData.totalElements"
-          :page-sizes="[5, 10, 20, 50]"
-          :page-count="pageData.totalPages"
-          layout="total, sizes, prev, pager, next, jumper"
-          background
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+            v-model:current-page="pagination.current"
+            v-model:page-size="pagination.size"
+            :total="pageData.totalElements"
+            :page-sizes="[5, 10, 20, 50]"
+            :page-count="pageData.totalPages"
+            layout="total, sizes, prev, pager, next, jumper"
+            background
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
         />
       </div>
     </div>
@@ -68,11 +68,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { getAllPublishedPosts } from '@/api/post';
-import type { Post } from '@/models/entity/Post';
-import type { MongoPageResult } from '@/models/response/MongoPageResult';
+import {ref, reactive, onMounted} from 'vue';
+import {useRouter} from 'vue-router';
+import {getAllPublishedPosts} from '@/api/post';
+import type {Post} from '@/models/entity/Post';
+import type {MongoPageResult} from '@/models/response/MongoPageResult';
 
 const router = useRouter();
 

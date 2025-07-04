@@ -2,9 +2,9 @@
 import {createRouter, createWebHistory} from 'vue-router'
 import {useUserStore} from '@/stores/user'
 import {ElMessage} from 'element-plus'
-import DefaultLayout from "@/layout/DefaultLayout.vue";
-import BlankLayout from "@/layout/BlankLayout.vue";
-import AdminLayout from "@/layout/AdminLayout.vue";
+import DefaultLayout from "@/layouts/DefaultLayout.vue";
+import BlankLayout from "@/layouts/BlankLayout.vue";
+import AdminLayout from "@/layouts/AdminLayout.vue";
 
 const routes = [
     {
@@ -13,16 +13,37 @@ const routes = [
         children: [
             {
                 path: '',
-                name: 'PostList',
-                component: () => import('@/views/post/PostList.vue')
+                name: 'Home',
+                component: () => import('@/views/home/Home.vue')
+            },
+            {
+                path: '/follow',
+                name: 'Follow',
+                component: () => import('@/views/home/Follow.vue')
+            },
+            {
+                path: '/hot',
+                name: 'Hot',
+                component: () => import('@/views/home/Hot.vue')
             },
             {
                 path: '/post/:id',
                 name: 'PostDetail',
                 component: () => import('@/views/post/PostDetail.vue')
-            }
+            },
         ]
     },
+    // {
+    //     path: '/post',
+    //     component: DefaultLayout,
+    //     children: [
+    //         {
+    //             path: '/:id',
+    //             name: 'PostDetail',
+    //             component: () => import('@/views/post/PostDetail.vue')
+    //         },
+    //     ]
+    // },
     {
         path: '/login',
         component: BlankLayout,

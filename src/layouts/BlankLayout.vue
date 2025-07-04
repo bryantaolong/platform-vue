@@ -1,4 +1,4 @@
-<!-- layout/BlankLayout.vue -->
+<!-- layouts/BlankLayout.vue -->
 <template>
   <router-view />
 </template>
