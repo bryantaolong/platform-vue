@@ -1,13 +1,13 @@
-<template>
-  <div>
-    <h2>设置</h2>
-    <!-- 这里显示你的发布内容列表 -->
-  </div>
-</template>
-
 <script setup lang="ts">
 
 </script>
+
+<template>
+  <div>
+    <h2>我的收藏</h2>
+    <!-- 这里显示你的发布内容列表 -->
+  </div>
+</template>
 
 <style scoped>
 

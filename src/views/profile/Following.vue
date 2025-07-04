@@ -3,7 +3,10 @@
 </script>
 
 <template>
- Following
+  <div>
+    <h2>我的关注</h2>
+    <!-- 这里显示你的发布内容列表 -->
+  </div>
 </template>
 
 <style scoped>

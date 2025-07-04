@@ -1,13 +1,14 @@
+<script setup lang="ts">
+
+</script>
+
 <template>
   <div>
-    <h2>设置</h2>
+    <h2>我的发布</h2>
     <!-- 这里显示你的发布内容列表 -->
   </div>
 </template>
 
-<script setup lang="ts">
-
-</script>
 
 <style scoped>
 

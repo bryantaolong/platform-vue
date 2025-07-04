@@ -17,12 +17,12 @@ const routes = [
                 component: () => import('@/views/home/Home.vue')
             },
             {
-                path: '/follow',
+                path: 'follow',
                 name: 'Follow',
                 component: () => import('@/views/home/Follow.vue')
             },
             {
-                path: '/hot',
+                path: 'hot',
                 name: 'Hot',
                 component: () => import('@/views/home/Hot.vue')
             },
@@ -68,29 +68,41 @@ const routes = [
     },
     {
         path: '/user',
-        component: DefaultLayout,
-        redirect: '/profile',
+        component: DefaultLayout, // ⬅️ 包住整个 Profile 区域
+        meta: {requiresAuth: true},
+        redirect: '/user/publishes',
         children: [
             {
                 path: '',
-                name: 'Profile',
-                component: () => import('@/views/Profile.vue'),
-            },
-            {
-                path: 'settings',
-                name: 'Settings',
-                component: () => import('@/views/profile/Settings.vue'),
-            },
-            {
-                path: 'following',
-                name: 'following',
-                component: () => import('@/views/profile/Following.vue'),
-            },
-            {
-                path: 'followers',
-                name: 'followers',
-                component: () => import('@/views/profile/Followers.vue'),
-            },
+                component: () => import('@/views/Profile.vue'), // ⬅️ 中间页面，包含顶部信息、菜单栏
+                children: [
+                    {
+                        path: 'publishes',
+                        name: 'Publishes',
+                        component: () => import('@/views/profile/Publishes.vue'),
+                    },
+                    {
+                        path: 'favorites',
+                        name: 'Favorites',
+                        component: () => import('@/views/profile/Favorites.vue'),
+                    },
+                    {
+                        path: 'settings',
+                        name: 'Settings',
+                        component: () => import('@/views/profile/Settings.vue'),
+                    },
+                    {
+                        path: 'following',
+                        name: 'Following',
+                        component: () => import('@/views/profile/Following.vue'),
+                    },
+                    {
+                        path: 'followers',
+                        name: 'Followers',
+                        component: () => import('@/views/profile/Followers.vue'),
+                    }
+                ]
+            }
         ]
     },
     {
@@ -149,6 +161,14 @@ router.beforeEach(async (to, _from, next) => {
         } else if (!userStore.token) { // 没有token直接去登录
             ElMessage.warning('您尚未登录，请先登录。');
             return next('/login');
+        }
+    }
+
+    if (to.meta.requiresAuth) {
+        const isAdmin = userStore.userInfo && userStore.userInfo.roles.split(',').includes('ROLE_USER');
+        if (!isAdmin) {
+            ElMessage.error('您尚未登录，请登录！');
+            return next('/');
         }
     }
 

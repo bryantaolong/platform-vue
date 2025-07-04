@@ -1,58 +1,62 @@
 <template>
-  <el-card
-      style="max-width: 800px"
-      class="user-info-card bg-white/90 backdrop-blur-md shadow-xl rounded-2xl p-6 mb-6 transform transition-all hover:scale-105"
-  >
-    <el-container>
-      <el-aside>
-        <el-avatar
+  <div class="user-info-card-wrapper">
+    <el-card class="user-info-card">
+      <el-container>
+        <el-aside width="170px" class="avatar-section">
+          <el-avatar
             src="https://i.pravatar.cc/40"
             shape="square"
             :size="150"
-        />
-      </el-aside>
+            class="user-avatar"
+          />
+        </el-aside>
 
-      <el-main>
-        <div class="left">
-          <div>
-            <h2>{{ user.username }}</h2>
+        <el-main class="user-info-main">
+          <div class="user-info-content">
+            <div class="user-basic-info">
+              <h2 class="username">{{ user.username }}</h2>
+
+              <!-- 关注与粉丝统计 -->
+              <div class="stats-section">
+                <span class="stat-item" @click="handleViewFollowing">
+                  关注 <strong>{{ followingCount }}</strong>
+                </span>
+                <span class="stat-item" @click="handleViewFollowers">
+                  粉丝 <strong>{{ followerCount }}</strong>
+                </span>
+              </div>
+            </div>
+
+            <div class="action-buttons">
+              <el-button
+                type="primary"
+                @click="handleUpdate"
+                :loading="loading"
+                class="action-btn primary-btn"
+              >
+                更新资料
+              </el-button>
+              <el-button
+                type="info"
+                @click="handleModifyPassword"
+                :loading="loading"
+                class="action-btn secondary-btn"
+              >
+                修改密码
+              </el-button>
+            </div>
           </div>
-
-          <!-- 关注与粉丝统计 -->
-          <p>
-            <span @click="handleViewFollowing">关注 {{ followingCount }}</span>
-            <span @click="handleViewFollowers">粉丝 {{ followerCount }}</span>
-          </p>
-        </div>
-
-        <div class="flex justify-end space-x-3 mt-2">
-          <el-button
-              type="primary"
-              @click="handleUpdate"
-              :loading="loading"
-              class="bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800 rounded-lg px-5 py-2 transition-all"
-          >
-            更新资料
-          </el-button>
-          <el-button
-              type="info"
-              @click="handleModifyPassword"
-              :loading="loading"
-              class="bg-gradient-to-r from-teal-500 to-teal-600 text-white hover:from-teal-600 hover:to-teal-700 rounded-lg px-5 py-2 transition-all"
-          >
-            修改密码
-          </el-button>
-        </div>
-      </el-main>
-    </el-container>
-  </el-card>
+        </el-main>
+      </el-container>
+    </el-card>
+  </div>
 </template>
 
 <script setup lang="ts">
 import {ref, onMounted} from 'vue';
 import {ElMessage} from 'element-plus';
 import type {User} from '@/models/entity/User';
-import router from '@/router'; // 确保你已经引入了路由实例
+import router from '@/router';
 import {
   getFollowingUsers,
   getFollowerUsers,
@@ -127,7 +131,191 @@ const handleViewFollowers = () => {
 </script>
 
 <style scoped>
+.user-info-card-wrapper {
+  width: 100%;
+  overflow: visible;
+}
+
 .user-info-card {
-  @apply border-0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 16px;
+  overflow: visible;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
+}
+
+.user-info-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.user-info-card :deep(.el-card__body) {
+  padding: 30px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  overflow: visible;
+}
+
+.avatar-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 20px;
+  overflow: visible;
+}
+
+.user-avatar {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  border: 3px solid rgba(255, 255, 255, 0.8);
+}
+
+.user-info-main {
+  padding: 0;
+  overflow: visible;
+}
+
+.user-info-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  min-height: 150px;
+  overflow: visible;
+}
+
+.user-basic-info {
+  flex: 1;
+  overflow: visible;
+}
+
+.username {
+  font-size: 28px;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 16px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.stats-section {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.stat-item {
+  color: #4a5568;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(102, 126, 234, 0.1);
+  white-space: nowrap;
+}
+
+.stat-item:hover {
+  background: rgba(102, 126, 234, 0.2);
+  transform: translateY(-1px);
+}
+
+.stat-item strong {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.action-btn {
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+  white-space: nowrap;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.primary-btn:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.secondary-btn {
+  background: linear-gradient(135deg, #4fd1c7 0%, #06b6d4 100%);
+  color: white;
+}
+
+.secondary-btn:hover {
+  background: linear-gradient(135deg, #3fc5ba 0%, #0891b2 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 209, 199, 0.4);
+}
+
+/* 隐藏 Element Plus 容器的滚动条 */
+:deep(.el-container) {
+  overflow: visible;
+}
+
+:deep(.el-aside) {
+  overflow: visible;
+}
+
+:deep(.el-main) {
+  overflow: visible;
+  padding: 0;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .user-info-card :deep(.el-card__body) {
+    padding: 20px;
+  }
+
+  .avatar-section {
+    width: 120px !important;
+    padding-right: 15px;
+  }
+
+  .user-avatar {
+    width: 100px !important;
+    height: 100px !important;
+  }
+
+  .username {
+    font-size: 22px;
+  }
+
+  .stats-section {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-btn {
+    width: 100%;
+  }
 }
 </style>
