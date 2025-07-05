@@ -37,7 +37,7 @@ import {useRouter} from 'vue-router';
 import {useUserStore} from '@/stores/user'; // 导入 Pinia store
 
 // 导入 RegisterRequest 接口
-import type {RegisterRequest} from '@/models/request/RegisterRequest';
+import type {RegisterRequest} from '@/models/request/auth/RegisterRequest.ts';
 
 const userStore = useUserStore();
 const router = useRouter();

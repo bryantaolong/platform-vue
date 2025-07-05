@@ -2,9 +2,9 @@
 import request from '@/utils/request';
 import type { Result } from '@/models/response/Result';
 import type { User } from '@/models/entity/User';
-import type { UserUpdateRequest } from '@/models/request/UserUpdateRequest';
-import type { ChangePasswordRequest } from '@/models/request/ChangePasswordRequest';
-import type { UserExportRequest } from '@/models/request/UserExportRequest';
+import type { UserUpdateRequest } from '@/models/request/user/UserUpdateRequest.ts';
+import type { ChangePasswordRequest } from '@/models/request/user/ChangePasswordRequest.ts';
+import type { UserExportRequest } from '@/models/request/user/UserExportRequest.ts';
 import type {MyBatisPlusPageResult} from "@/models/response/MyBatisPlusPageResult.ts";
 
 /**

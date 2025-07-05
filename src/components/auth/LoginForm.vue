@@ -28,7 +28,7 @@ import {useUserStore} from '@/stores/user';
 import router from "@/router";
 
 // 导入 LoginRequest 接口
-import type {LoginRequest} from '@/models/request/LoginRequest';
+import type {LoginRequest} from '@/models/request/auth/LoginRequest.ts';
 
 const userStore = useUserStore();
 const loading = ref(false);

@@ -32,7 +32,7 @@ import { ref, reactive, watch } from 'vue';
 import { ElMessage, FormInstance, FormRules } from 'element-plus';
 import * as userService from '@/api/user.ts';
 import type { User } from '@/models/entity/User.ts';
-import type { ChangePasswordRequest } from '@/models/request/ChangePasswordRequest.ts';
+import type { ChangePasswordRequest } from '@/models/request/user/ChangePasswordRequest.ts';
 
 // 定义组件的 props
 const props = defineProps<{

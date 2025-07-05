@@ -28,7 +28,7 @@
 import { ref, reactive, watch } from 'vue';
 import { ElMessage, FormInstance, FormRules } from 'element-plus';
 import * as userService from '@/api/user.ts';
-import type { UserUpdateRequest } from '@/models/request/UserUpdateRequest.ts';
+import type { UserUpdateRequest } from '@/models/request/user/UserUpdateRequest.ts';
 import type { User } from '@/models/entity/User.ts';
 
 // 定义组件的 props

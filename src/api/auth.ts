@@ -1,7 +1,7 @@
 // src/api/auth.ts
 import request from '@/utils/request';
-import type { LoginRequest } from '@/models/request/LoginRequest';
-import type { RegisterRequest } from '@/models/request/RegisterRequest';
+import type { LoginRequest } from '@/models/request/auth/LoginRequest.ts';
+import type { RegisterRequest } from '@/models/request/auth/RegisterRequest.ts';
 import type { Result } from '@/models/response/Result';
 import type {User} from "@/models/entity/User.ts";
 
