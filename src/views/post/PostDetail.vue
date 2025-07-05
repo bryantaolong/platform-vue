@@ -6,7 +6,10 @@
     <div v-else class="post-wrapper">
       <!-- 文章主体 -->
       <article class="post-content">
-        <h1 class="title">{{ post.title }}</h1>
+        <h1 class="title">
+          {{ post.title }}
+          <PostFavoriteButton :post-id="post.id"/>
+        </h1>
 
         <div class="meta">
           <img src="https://i.pravatar.cc/40" alt="作者头像" class="avatar"/>
@@ -64,6 +67,7 @@ import {ref, onMounted} from 'vue';
 import {useRoute} from 'vue-router';
 import {getPostById} from '@/api/post';
 import type {Post} from '@/models/entity/Post';
+import PostFavoriteButton from "@/components/post/PostFavoriteButton.vue";
 
 const route = useRoute();
 const post = ref<Post | null>(null);
