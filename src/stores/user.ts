@@ -1,14 +1,10 @@
 import { defineStore } from 'pinia'
-// 导入 API 函数
 import { login, register, getCurrentUser } from '@/api/auth'
-
-// 导入请求体类型 (使用 import type，因为它们是纯类型)
-import type { LoginRequest } from '@/models/request/LoginRequest'
-import type { RegisterRequest } from '@/models/request/RegisterRequest'
-
-// 导入响应体和实体类型 (使用 import type)
+import type { LoginRequest } from '@/models/request/auth/LoginRequest.ts'
+import type { RegisterRequest } from '@/models/request/auth/RegisterRequest.ts'
 import type { Result } from '@/models/response/Result'
-import type { User } from '@/models/entity/User' // 用户实体类型
+import type { User } from '@/models/entity/User'
+// import {initWebSocket} from "@/utils/websocket.ts"; // 用户实体类型
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -64,6 +60,7 @@ export const useUserStore = defineStore('user', {
       const res = await getCurrentUser()
       if (res.code === 200) {
         this.userInfo = res.data // res.data 现在被明确为 User 类型
+        // initWebSocket(); // ⬅️ 添加这里
       }
       return res // 返回 res 方便调用者处理
     },
