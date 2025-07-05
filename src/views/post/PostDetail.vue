@@ -12,8 +12,8 @@
         </h1>
 
         <div class="meta">
-          <img src="https://i.pravatar.cc/40" alt="作者头像" class="avatar"/>
-          <span>{{ post.authorName || '匿名' }}</span>
+          <img src="https://i.pravatar.cc/40" alt="作者头像" class="author-avatar" @click="handleClickAuthorAvatar()"/>
+          <span @click="handleClickAuthorAvatar" class="author-name">{{ post.authorName || '匿名' }}</span>
           <span>•</span>
           <span>{{ formatDate(post.createdAt) }}</span>
         </div>
@@ -68,6 +68,8 @@ import {useRoute} from 'vue-router';
 import {getPostById} from '@/api/post';
 import type {Post} from '@/models/entity/Post';
 import PostFavoriteButton from "@/components/post/PostFavoriteButton.vue";
+import router from "@/router";
+import {getUserByUsername} from "@/api/user.ts";
 
 const route = useRoute();
 const post = ref<Post | null>(null);
@@ -97,6 +99,24 @@ const fetchPost = async () => {
     post.value = null;
   } finally {
     loading.value = false;
+  }
+};
+
+const handleClickAuthorAvatar = async () => {
+  if (!post.value?.authorName) return;
+
+  try {
+    const res = await getUserByUsername(post.value.authorName);
+    if (res.code === 200 && res.data) {
+      // 假设用户详情中包含id字段
+      router.push(`/user/${res.data.id}/publications`);
+    } else {
+      console.error('获取用户信息失败');
+      // 可以添加用户提示，比如使用Element Plus的ElMessage
+    }
+  } catch (err) {
+    console.error('获取用户信息出错', err);
+    // 可以添加用户提示
   }
 };
 
@@ -161,10 +181,15 @@ onMounted(fetchPost);
   border-bottom: 1px solid #f1f3f4;
 }
 
-.avatar {
+.author-avatar {
   width: 24px;
   height: 24px;
   border-radius: 50%;
+  cursor: pointer;
+}
+
+.author-name {
+  cursor: pointer;
 }
 
 .featured-image {
