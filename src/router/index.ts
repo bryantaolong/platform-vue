@@ -1,12 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import type { RouteRecordRaw } from 'vue-router'
 import { ElMessage } from 'element-plus'
-
 import DefaultLayout from "@/layouts/DefaultLayout.vue"
 import BlankLayout from "@/layouts/BlankLayout.vue"
 import AdminLayout from "@/layouts/AdminLayout.vue"
 
-const routes = [
+const routes: RouteRecordRaw[] = [
     {
         path: '/',
         component: DefaultLayout,
@@ -63,7 +63,7 @@ const routes = [
             {
                 path: '',
                 component: () => import('@/views/Profile.vue'),
-                redirect: (to: RouteLocationNormalized) => `/user/${to.params.id}/publishes`,
+                redirect: to => `/user/${to.params.id}/publishes`,
                 children: [
                     {
                         path: 'publishes',
