@@ -42,6 +42,32 @@ export function getPostById(id: string): Promise<Result<Post>> {
     });
 }
 
+/**
+ * 获取指定用户发布的博文列表（支持分页）
+ * @param authorId 用户 ID
+ * @param params 分页参数
+ */
+export function getPostsByAuthorId(
+    authorId: number,
+    params?: {
+        page?: number;
+        size?: number;
+        sortBy?: string;
+        sortDir?: 'ASC' | 'DESC';
+    }
+): Promise<Result<MongoPageResult<Post>>> {
+    return request({
+        url: `/api/posts/author/${authorId}`,
+        method: 'get',
+        params: {
+            page: params?.page ?? 0,
+            size: params?.size ?? 10,
+            sortBy: params?.sortBy ?? 'createdAt',
+            sortDir: params?.sortDir ?? 'DESC'
+        }
+    });
+}
+
 
 /**
  * 根据 Slug 获取单篇博文详情
