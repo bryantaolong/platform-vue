@@ -17,45 +17,56 @@
           :page-size="pageSize"
           :current-page="pageNum"
           :total="total"
-          @current-change="loadData"
+          @current-change="handlePageChange"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { getFollowerUsers } from '@/api/userFollow'
 import type { User } from '@/models/entity/User'
 import UserListItem from '@/components/user/UserListItem.vue'
+
+const route = useRoute()
+const userId = ref<number>(Number(route.params.id))
 
 const users = ref<User[]>([])
 const pageNum = ref(1)
 const pageSize = 10
 const total = ref(0)
 const loading = ref(true)
-const userId = 1 // 当前登录用户 ID
 
 const loadData = async (page = 1) => {
+  if (!userId.value) return
   try {
     loading.value = true
     pageNum.value = page
 
-    const res = await getFollowerUsers(userId, page, pageSize)
+    const res = await getFollowerUsers(userId.value, page, pageSize)
 
     if (res.code === 200 || res.code === 0) {
       users.value = res.data.records
       total.value = res.data.total
     }
   } catch (error) {
-    console.error('加载数据出错:', error)
+    console.error('加载粉丝列表失败:', error)
   } finally {
     loading.value = false
   }
 }
 
-onMounted(() => loadData())
-</script>
+const handlePageChange = (page: number) => {
+  loadData(page)
+}
 
-<style scoped>
-</style>
+onMounted(() => loadData())
+
+watch(() => route.params.id, (newId) => {
+  userId.value = Number(newId)
+  pageNum.value = 1
+  loadData()
+})
+</script>
