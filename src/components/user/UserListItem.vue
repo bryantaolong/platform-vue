@@ -1,6 +1,5 @@
-<!-- src/components/user/UserListItem.vue -->
 <template>
-  <div class="user-list-item">
+  <div class="user-list-item" @click="goToUserProfile">
     <div class="user-info">
       <el-avatar :src="`https://i.pravatar.cc/40?u=${user.id}`" :size="40" />
       <div class="user-details">
@@ -11,7 +10,7 @@
       <el-button
           size="small"
           :type="isFollowingState ? 'danger' : 'primary'"
-          @click="toggleFollow"
+          @click.stop="toggleFollow"
           :loading="loading"
       >
         {{ isFollowingState ? '取消关注' : '关注' }}
@@ -22,6 +21,7 @@
 
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
+import { useRouter } from 'vue-router'
 import { followUser, unfollowUser, isFollowing } from '@/api/userFollow'
 import type { User } from '@/models/entity/User'
 
@@ -29,9 +29,11 @@ const props = defineProps<{
   user: User
 }>()
 
+const router = useRouter()
 const isFollowingState = ref(false)
 const loading = ref(false)
 
+// 判断是否已关注
 watchEffect(async () => {
   const res = await isFollowing(props.user.id)
   if (res.code === 200 || res.code === 0) {
@@ -39,6 +41,12 @@ watchEffect(async () => {
   }
 })
 
+// 跳转用户主页
+const goToUserProfile = () => {
+  router.push(`/user/${props.user.id}`)
+}
+
+// 关注/取消关注
 const toggleFollow = async () => {
   loading.value = true
   try {
@@ -55,16 +63,16 @@ const toggleFollow = async () => {
 </script>
 
 <style scoped>
-/* 确保容器使用完整宽度 */
 .user-list-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  padding: 16px 16px 16px 16px;
+  padding: 16px;
   border-bottom: 1px solid #e5e7eb;
   transition: background-color 0.2s ease;
   background-color: #ffffff;
+  cursor: pointer;
   box-sizing: border-box;
 }
 
@@ -72,16 +80,14 @@ const toggleFollow = async () => {
   background-color: #f9fafb;
 }
 
-/* 左侧用户信息区域 */
 .user-info {
   display: flex;
   align-items: center;
   gap: 12px;
   flex: 1;
-  min-width: 0; /* 允许内容截断 */
+  min-width: 0;
 }
 
-/* 用户详情 */
 .user-details {
   flex: 1;
   min-width: 0;
@@ -92,13 +98,11 @@ const toggleFollow = async () => {
   color: #111827;
   font-size: 14px;
   line-height: 1.4;
-  /* 如果用户名过长，可以添加截断 */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* 右侧操作按钮区域 */
 .action-area {
   flex-shrink: 0;
   margin-left: 16px;
@@ -107,10 +111,9 @@ const toggleFollow = async () => {
   align-items: center;
 }
 
-/* 响应式设计 */
 @media (max-width: 640px) {
   .user-list-item {
-    padding: 12px 12px 12px 12px;
+    padding: 12px;
   }
 
   .user-info {

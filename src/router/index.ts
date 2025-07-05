@@ -1,10 +1,10 @@
-// src/router/index.ts
-import {createRouter, createWebHistory} from 'vue-router'
-import {useUserStore} from '@/stores/user'
-import {ElMessage} from 'element-plus'
-import DefaultLayout from "@/layouts/DefaultLayout.vue";
-import BlankLayout from "@/layouts/BlankLayout.vue";
-import AdminLayout from "@/layouts/AdminLayout.vue";
+import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { ElMessage } from 'element-plus'
+
+import DefaultLayout from "@/layouts/DefaultLayout.vue"
+import BlankLayout from "@/layouts/BlankLayout.vue"
+import AdminLayout from "@/layouts/AdminLayout.vue"
 
 const routes = [
     {
@@ -33,17 +33,6 @@ const routes = [
             },
         ]
     },
-    // {
-    //     path: '/post',
-    //     component: DefaultLayout,
-    //     children: [
-    //         {
-    //             path: '/:id',
-    //             name: 'PostDetail',
-    //             component: () => import('@/views/post/PostDetail.vue')
-    //         },
-    //     ]
-    // },
     {
         path: '/login',
         component: BlankLayout,
@@ -67,40 +56,39 @@ const routes = [
         ]
     },
     {
-        path: '/user',
-        component: DefaultLayout, // ⬅️ 包住整个 Profile 区域
-        meta: {requiresAuth: true},
-        redirect: '/user/publishes',
+        path: '/user/:id',
+        component: DefaultLayout,
+        meta: { requiresAuth: true },
         children: [
             {
                 path: '',
-                component: () => import('@/views/Profile.vue'), // ⬅️ 中间页面，包含顶部信息、菜单栏
-                redirect: '/user/publishes',
+                component: () => import('@/views/Profile.vue'),
+                redirect: (to: RouteLocationNormalized) => `/user/${to.params.id}/publishes`,
                 children: [
                     {
                         path: 'publishes',
-                        name: 'Publishes',
-                        component: () => import('@/views/profile/Publishes.vue'),
+                        name: 'UserPublishes',
+                        component: () => import('@/views/profile/Publishes.vue')
                     },
                     {
                         path: 'favorites',
-                        name: 'Favorites',
-                        component: () => import('@/views/profile/Favorites.vue'),
+                        name: 'UserFavorites',
+                        component: () => import('@/views/profile/Favorites.vue')
                     },
                     {
                         path: 'settings',
-                        name: 'Settings',
-                        component: () => import('@/views/profile/Settings.vue'),
+                        name: 'UserSettings',
+                        component: () => import('@/views/profile/Settings.vue')
                     },
                     {
                         path: 'following',
-                        name: 'Following',
-                        component: () => import('@/views/profile/Following.vue'),
+                        name: 'UserFollowing',
+                        component: () => import('@/views/profile/Following.vue')
                     },
                     {
                         path: 'followers',
-                        name: 'Followers',
-                        component: () => import('@/views/profile/Followers.vue'),
+                        name: 'UserFollowers',
+                        component: () => import('@/views/profile/Followers.vue')
                     }
                 ]
             }
@@ -110,26 +98,26 @@ const routes = [
         path: '/admin',
         component: AdminLayout,
         redirect: '/dashboard',
-        meta: {requiresAdmin: true},
+        meta: { requiresAdmin: true },
         children: [
             {
                 path: '',
                 name: 'Dashboard',
                 component: () => import('@/views/admin/Dashboard.vue'),
-                meta: {requiresAdmin: true}
+                meta: { requiresAdmin: true }
             },
             {
                 path: 'users',
                 name: 'Users',
                 component: () => import('@/views/admin/Users.vue'),
-                meta: {requiresAdmin: true}
+                meta: { requiresAdmin: true }
             }
         ]
     },
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
-        component: () => import('@/views/NotFound.vue'),
+        component: () => import('@/views/NotFound.vue')
     }
 ]
 
@@ -138,57 +126,53 @@ const router = createRouter({
     routes
 })
 
-// 全局前置守卫
 router.beforeEach(async (to, _from, next) => {
-    const userStore = useUserStore();
+    const userStore = useUserStore()
 
-    // 检查是否需要认证
     if (to.meta.requiresAuth || to.meta.requiresAdmin) {
-        // 确保用户信息已加载
         if (!userStore.userInfo && userStore.token) {
             try {
-                const res = await userStore.fetchUserInfo();
+                const res = await userStore.fetchUserInfo()
                 if (res.code !== 200 || !userStore.userInfo) {
-                    ElMessage.error('认证信息失效，请重新登录！');
-                    userStore.logout();
-                    return next('/login');
+                    ElMessage.error('认证信息失效，请重新登录！')
+                    userStore.logout()
+                    return next('/login')
                 }
             } catch (error) {
-                console.error('路由守卫获取用户信息失败:', error);
-                ElMessage.error('网络错误或认证失败，请重新登录！');
-                userStore.logout();
-                return next('/login');
+                console.error('路由守卫获取用户信息失败:', error)
+                ElMessage.error('网络错误或认证失败，请重新登录！')
+                userStore.logout()
+                return next('/login')
             }
-        } else if (!userStore.token) { // 没有token直接去登录
-            ElMessage.warning('您尚未登录，请先登录。');
-            return next('/login');
+        } else if (!userStore.token) {
+            ElMessage.warning('您尚未登录，请先登录。')
+            return next('/login')
         }
     }
 
     if (to.meta.requiresAuth) {
-        const isAdmin = userStore.userInfo && userStore.userInfo.roles.split(',').includes('ROLE_USER');
-        if (!isAdmin) {
-            ElMessage.error('您尚未登录，请登录！');
-            return next('/');
+        const isUser = userStore.userInfo && userStore.userInfo.roles.includes('ROLE_USER')
+        if (!isUser) {
+            ElMessage.error('您尚未登录，请登录！')
+            return next('/')
         }
     }
 
-    // 检查是否需要管理员权限
     if (to.meta.requiresAdmin) {
-        const isAdmin = userStore.userInfo && userStore.userInfo.roles.split(',').includes('ROLE_ADMIN');
+        const isAdmin = userStore.userInfo && userStore.userInfo.roles.includes('ROLE_ADMIN')
         if (!isAdmin) {
-            ElMessage.error('您没有权限访问此页面！');
-            return next('/');
+            ElMessage.error('您没有权限访问此页面！')
+            return next('/')
         }
     }
 
-    next();
-});
+    next()
+})
 
 router.onError((error, to, from) => {
-    console.error('Vue Router 导航错误:', error);
-    console.error('跳转目标:', to);
-    console.error('跳转来源:', from);
-});
+    console.error('Vue Router 导航错误:', error)
+    console.error('跳转目标:', to)
+    console.error('跳转来源:', from)
+})
 
 export default router

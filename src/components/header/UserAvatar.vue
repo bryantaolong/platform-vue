@@ -29,7 +29,7 @@ const userStore = useUserStore()
 
 function handleCommand(command: string) {
   if (command === 'profile') {
-    router.push('/user')
+    router.push(`/user/${userStore.userInfo?.id}`);
   } else if (command === 'logout') {
     userStore.logout()
     ElMessage.success('已退出登录')

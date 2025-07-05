@@ -4,7 +4,7 @@
       <el-container>
         <el-aside width="170px" class="avatar-section">
           <el-avatar
-              src="https://i.pravatar.cc/40"
+              :src="`https://i.pravatar.cc/40?u=${user.id}`"
               shape="square"
               :size="150"
               class="user-avatar"
@@ -16,7 +16,6 @@
             <div class="user-basic-info">
               <h2 class="username">{{ user.username }}</h2>
 
-              <!-- 关注与粉丝统计 -->
               <div class="stats-section">
                 <span class="stat-item" @click="handleViewFollowing">
                   关注 <strong>{{ followingCount }}</strong>
@@ -27,7 +26,8 @@
               </div>
             </div>
 
-            <div class="action-buttons">
+            <!-- ✅ 只有在本人主页时才展示按钮 -->
+            <div v-if="showEditButtons" class="action-buttons">
               <el-button
                   type="primary"
                   @click="handleUpdate"
@@ -50,7 +50,6 @@
       </el-container>
     </el-card>
 
-    <!-- 编辑用户信息对话框 -->
     <EditUserDialog
         :visible="showEditUserDialog"
         :user-data="user"
@@ -61,80 +60,69 @@
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted} from 'vue';
-import {ElMessage} from 'element-plus';
-import type {User} from '@/models/entity/User';
-import router from '@/router';
-import {
-  getFollowingUsers,
-  getFollowerUsers,
-} from '@/api/userFollow';
-import EditUserDialog from '@/components/user/operations/EditUserDialog.vue';
+import { ref, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import router from '@/router'
+import EditUserDialog from '@/components/user/operations/EditUserDialog.vue'
+import { getFollowingUsers, getFollowerUsers } from '@/api/userFollow'
+import type { User } from '@/models/entity/User'
 
 const props = defineProps<{
-  user: User;
-}>();
+  user: User
+  showEditButtons?: boolean // ✅ 新增参数，默认不展示按钮
+}>()
 
-const emit = defineEmits(['update-profile', 'modify-password']);
+const emit = defineEmits(['update-profile', 'modify-password'])
 
-const loading = ref(false);
-const followingCount = ref(0);
-const followerCount = ref(0);
-const showEditUserDialog = ref(false);
+const loading = ref(false)
+const followingCount = ref(0)
+const followerCount = ref(0)
+const showEditUserDialog = ref(false)
 
-// 获取关注和粉丝数量
 onMounted(async () => {
   try {
     const [followingRes, followerRes] = await Promise.all([
       getFollowingUsers(props.user.id),
       getFollowerUsers(props.user.id),
-    ]);
+    ])
 
     if (followingRes.code === 200) {
-      followingCount.value = followingRes.data.total;
+      followingCount.value = followingRes.data.total
     }
-
     if (followerRes.code === 200) {
-      followerCount.value = followerRes.data.total;
+      followerCount.value = followerRes.data.total
     }
-  } catch (error) {
-    ElMessage.error('加载关注/粉丝数量失败');
+  } catch (e) {
+    ElMessage.error('加载关注/粉丝失败')
   }
-});
+})
 
-// 打开编辑用户对话框
 const handleUpdate = () => {
-  showEditUserDialog.value = true;
-};
+  showEditUserDialog.value = true
+}
 
-// 用户信息更新成功后的处理
 const handleUserUpdated = () => {
-  emit('update-profile'); // 通知父组件更新用户信息
-  ElMessage.success('用户信息更新成功！');
-};
+  emit('update-profile')
+  ElMessage.success('更新成功')
+}
 
-// 触发修改密码事件
-const handleModifyPassword = async () => {
-  loading.value = true;
+const handleModifyPassword = () => {
+  loading.value = true
   try {
-    emit('modify-password', props.user);
-    ElMessage.success('请在弹窗中修改密码！');
-  } catch (error) {
-    ElMessage.error('修改密码请求失败，请重试！');
+    emit('modify-password', props.user)
+    ElMessage.success('请在弹窗中修改密码！')
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
-// 跳转到关注列表页
 const handleViewFollowing = () => {
-  router.push(`/user/following`);
-};
+  router.push(`/user/${props.user.id}/following`);
+}
 
-// 跳转到粉丝列表页
 const handleViewFollowers = () => {
-  router.push(`/user/followers`);
-};
+  router.push(`/user/${props.user.id}/followers`);
+}
 </script>
 
 <style scoped>

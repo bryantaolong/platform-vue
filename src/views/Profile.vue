@@ -2,30 +2,39 @@
   <div class="profile-container">
     <el-container direction="vertical" class="profile-inner">
       <el-header class="profile-header">
+        <!-- ✅ 仅当为本人主页时展示完整卡片 -->
         <UserInfoCard
-          v-if="user"
-          :user="user"
-          @update-profile="fetchUserInfo"
-          @modify-password="handleModifyPassword"
+            v-if="user"
+            :user="user"
+            @update-profile="fetchUserInfo"
+            @modify-password="handleModifyPassword"
+            :show-edit-buttons="isOwnProfile"
         />
+        <!-- ❌ 如果不是本人主页，不展示资料 -->
+        <div v-else>
+          <el-card>该用户信息不可查看</el-card>
+        </div>
       </el-header>
 
       <el-main class="profile-main">
-        <!-- 白色卡片背景包住菜单和内容 -->
         <div class="profile-content-card">
-          <!-- 横向菜单 -->
+          <!-- ✅ 横向菜单 -->
           <el-menu
-            mode="horizontal"
-            :router="true"
-            :default-active="$route.path"
-            class="profile-menu"
+              mode="horizontal"
+              :router="true"
+              :default-active="$route.path"
+              class="profile-menu"
           >
-            <el-menu-item index="/user/publishes">我的发布</el-menu-item>
-            <el-menu-item index="/user/favorites">我的收藏</el-menu-item>
-            <el-menu-item index="/user/settings">设置</el-menu-item>
+            <el-menu-item :index="`/user/${userId}/publishes`">发布</el-menu-item>
+            <el-menu-item :index="`/user/${userId}/favorites`">收藏</el-menu-item>
+            <el-menu-item
+                v-if="isOwnProfile"
+                :index="`/user/${userId}/settings`"
+            >
+              设置
+            </el-menu-item>
           </el-menu>
 
-          <!-- 子内容展示区域 -->
           <div class="profile-page-view">
             <router-view />
           </div>
@@ -33,45 +42,54 @@
       </el-main>
     </el-container>
 
-    <!-- 修改密码对话框 -->
+    <!-- 修改密码弹窗 -->
     <ChangePasswordDialog
-      :visible="showChangePasswordDialog"
-      :user-data="currentOperateUser"
-      @update:visible="showChangePasswordDialog = $event"
-      @passwordChanged="fetchUserInfo"
+        :visible="showChangePasswordDialog"
+        :user-data="currentOperateUser"
+        @update:visible="showChangePasswordDialog = $event"
+        @passwordChanged="fetchUserInfo"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted} from 'vue';
-import {useUserStore} from '@/stores/user.ts';
+import { ref, computed, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import { useUserStore } from '@/stores/user.ts';
 import UserInfoCard from '@/components/user/UserInfoCard.vue';
 import ChangePasswordDialog from '@/components/user/operations/ChangePasswordDialog.vue';
-import type {User} from '@/models/entity/User.ts';
+import type { User } from '@/models/entity/User.ts';
 
+const route = useRoute();
 const userStore = useUserStore();
-const user = ref<User | null>(userStore.userInfo);
+
+const userId = computed(() => Number(route.params.id)); // 当前路径中 :id 参数
+const isOwnProfile = computed(() => userStore.userInfo?.id === userId.value);
+
+const user = computed<User | null>(() => {
+  return isOwnProfile.value ? userStore.userInfo : null;
+});
+
 const showChangePasswordDialog = ref(false);
 const currentOperateUser = ref<User | null>(null);
 
 const fetchUserInfo = async () => {
-  await userStore.fetchUserInfo();
-  user.value = userStore.userInfo;
+  if (isOwnProfile.value) {
+    await userStore.fetchUserInfo();
+  }
 };
 
 const handleModifyPassword = (user: User) => {
-  currentOperateUser.value = {...user};
+  currentOperateUser.value = { ...user };
   showChangePasswordDialog.value = true;
 };
 
-onMounted(async () => {
-  if (!userStore.isLoggedIn) {
-    window.location.href = '/login';
-  } else if (!user.value) {
-    await fetchUserInfo();
-  }
+onMounted(() => {
+  fetchUserInfo();
 });
+
+// 当路由参数 id 变化时，重新拉取信息（仅自己）
+watch(() => route.params.id, fetchUserInfo);
 </script>
 
 <style scoped>
@@ -126,26 +144,14 @@ onMounted(async () => {
   overflow: visible;
 }
 
-/* 隐藏 Element Plus 组件的滚动条 */
-:deep(.el-container) {
-  overflow: visible;
-}
-
-:deep(.el-header) {
-  overflow: visible;
-  height: auto;
-}
-
-:deep(.el-main) {
+:deep(.el-container),
+:deep(.el-header),
+:deep(.el-main),
+:deep(.el-aside) {
   overflow: visible;
   padding: 0;
 }
 
-:deep(.el-aside) {
-  overflow: visible;
-}
-
-/* 确保全局不出现横向滚动条 */
 * {
   box-sizing: border-box;
 }
