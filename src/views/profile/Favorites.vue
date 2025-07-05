@@ -12,15 +12,6 @@
       >
         <h3 class="post-title">{{ post.title }}</h3>
         <p class="post-meta">发布于 {{ formatDate(post.createdAt) }}</p>
-        <div class="post-actions">
-          <el-button
-              type="danger"
-              size="small"
-              @click.stop="handleUnfavorite(post.id!)"
-          >
-            取消收藏
-          </el-button>
-        </div>
       </div>
     </div>
 
@@ -41,11 +32,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import {getMyFavoritePosts, deletePostFavorite} from '@/api/postFavorite';
+import {getMyFavoritePosts} from '@/api/postFavorite';
 import type { Post } from '@/models/entity/Post';
 import type { MongoPageResult } from '@/models/response/MongoPageResult.ts';
 import router from '@/router';
-import { ElMessage, ElMessageBox } from 'element-plus';
 
 // 分页配置
 const pagination = reactive({
@@ -91,25 +81,6 @@ const fetchMyFavorites = async () => {
     }
   } finally {
     loading.value = false;
-  }
-};
-
-// 取消收藏
-const handleUnfavorite = async (postId: string) => {
-  try {
-    await ElMessageBox.confirm('确定要取消收藏吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    });
-
-    const res = await deletePostFavorite(postId);
-    if (res.code === 200) {
-      ElMessage.success('已取消收藏');
-      fetchMyFavorites(); // 刷新列表
-    }
-  } catch (error) {
-    // 用户取消操作
   }
 };
 
