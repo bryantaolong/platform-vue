@@ -63,12 +63,12 @@ const routes: RouteRecordRaw[] = [
             {
                 path: '',
                 component: () => import('@/views/Profile.vue'),
-                redirect: to => `/user/${to.params.id}/publishes`,
+                redirect: to => `/user/${to.params.id}/publications`,
                 children: [
                     {
-                        path: 'publishes',
-                        name: 'UserPublishes',
-                        component: () => import('@/views/profile/Publishes.vue')
+                        path: 'publications',
+                        name: 'UserPublications',
+                        component: () => import('@/views/profile/Publications.vue')
                     },
                     {
                         path: 'favorites',

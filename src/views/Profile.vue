@@ -31,7 +31,7 @@
               :default-active="$route.path"
               class="profile-menu"
           >
-            <el-menu-item :index="`/user/${userId}/publishes`">发布</el-menu-item>
+            <el-menu-item :index="`/user/${userId}/publications`">发布</el-menu-item>
             <el-menu-item :index="`/user/${userId}/favorites`">收藏</el-menu-item>
             <el-menu-item :index="`/user/${userId}/following`">关注</el-menu-item>
             <el-menu-item :index="`/user/${userId}/followers`">粉丝</el-menu-item>

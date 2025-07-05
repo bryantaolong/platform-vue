@@ -11,9 +11,7 @@
           @click="handlePostClick(post.id!)"
       >
         <h3 class="post-title">{{ post.title }}</h3>
-        <p class="post-meta">
-          发布于 {{ formatDate(post.createdAt) }}
-        </p>
+        <p class="post-meta">发布于 {{ formatDate(post.createdAt) }}</p>
       </div>
     </div>
 
@@ -33,15 +31,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { getPostsByAuthorId } from '@/api/post';
-import { useUserStore } from '@/stores/user'; // 假设你用 pinia 管理用户
 import type { Post } from '@/models/entity/Post';
 import type { MongoPageResult } from '@/models/response/MongoPageResult';
-import router from "@/router";
+import router from '@/router';
 
-const userStore = useUserStore();
-const authorId = userStore.userInfo?.id; // 从 store 中获取当前用户 ID
+const route = useRoute();
+const userId = ref<number>(Number(route.params.id));
 
 // 分页配置
 const pagination = reactive({
@@ -61,7 +59,7 @@ const pageData = ref<MongoPageResult<Post>>({
 const loading = ref(false);
 
 // 格式化日期
-const formatDate = (date?: Date | string) => {
+const formatDate = (date?: string | Date) => {
   if (!date) return '';
   const d = new Date(date);
   return d.toLocaleDateString('zh-CN', {
@@ -71,13 +69,13 @@ const formatDate = (date?: Date | string) => {
   });
 };
 
-// 加载我的博文
-const fetchMyPosts = async () => {
-  if (!authorId) return;
+// 获取用户博文
+const fetchUserPosts = async () => {
+  if (!userId.value) return;
 
   loading.value = true;
   try {
-    const res = await getPostsByAuthorId(authorId, {
+    const res = await getPostsByAuthorId(userId.value, {
       page: pagination.current - 1,
       size: pagination.size,
     });
@@ -94,21 +92,26 @@ const fetchMyPosts = async () => {
 
 const handleCurrentChange = (page: number) => {
   pagination.current = page;
-  fetchMyPosts();
+  fetchUserPosts();
 };
 
 const handleSizeChange = (size: number) => {
   pagination.size = size;
   pagination.current = 1;
-  fetchMyPosts();
+  fetchUserPosts();
 };
 
-// 点击文章卡片
 const handlePostClick = (postId?: string) => {
   router.push(`/post/${postId}`);
 };
 
-onMounted(fetchMyPosts);
+onMounted(fetchUserPosts);
+
+watch(() => route.params.id, (newId) => {
+  userId.value = Number(newId);
+  pagination.current = 1;
+  fetchUserPosts();
+});
 </script>
 
 <style scoped>
@@ -116,12 +119,6 @@ onMounted(fetchMyPosts);
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-}
-
-.section-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 20px;
 }
 
 .loading,
