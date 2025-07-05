@@ -14,10 +14,6 @@
       <el-form-item label="邮箱" prop="email">
         <el-input v-model="currentEditUser.email"></el-input>
       </el-form-item>
-      <!-- 如果需要新增用户功能，可以添加密码字段 -->
-      <!-- <el-form-item v-if="!currentEditUser.id" label="密码" prop="password">
-        <el-input type="password" v-model="currentEditUser.password" show-password></el-input>
-      </el-form-item> -->
     </el-form>
     <template #footer>
       <span class="dialog-footer">

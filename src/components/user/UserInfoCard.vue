@@ -4,10 +4,10 @@
       <el-container>
         <el-aside width="170px" class="avatar-section">
           <el-avatar
-            src="https://i.pravatar.cc/40"
-            shape="square"
-            :size="150"
-            class="user-avatar"
+              src="https://i.pravatar.cc/40"
+              shape="square"
+              :size="150"
+              class="user-avatar"
           />
         </el-aside>
 
@@ -29,18 +29,18 @@
 
             <div class="action-buttons">
               <el-button
-                type="primary"
-                @click="handleUpdate"
-                :loading="loading"
-                class="action-btn primary-btn"
+                  type="primary"
+                  @click="handleUpdate"
+                  :loading="loading"
+                  class="action-btn primary-btn"
               >
-                更新资料
+                修改信息
               </el-button>
               <el-button
-                type="info"
-                @click="handleModifyPassword"
-                :loading="loading"
-                class="action-btn secondary-btn"
+                  type="info"
+                  @click="handleModifyPassword"
+                  :loading="loading"
+                  class="action-btn secondary-btn"
               >
                 修改密码
               </el-button>
@@ -49,6 +49,14 @@
         </el-main>
       </el-container>
     </el-card>
+
+    <!-- 编辑用户信息对话框 -->
+    <EditUserDialog
+        :visible="showEditUserDialog"
+        :user-data="user"
+        @update:visible="showEditUserDialog = $event"
+        @userUpdated="handleUserUpdated"
+    />
   </div>
 </template>
 
@@ -61,6 +69,7 @@ import {
   getFollowingUsers,
   getFollowerUsers,
 } from '@/api/userFollow';
+import EditUserDialog from '@/components/user/operations/EditUserDialog.vue';
 
 const props = defineProps<{
   user: User;
@@ -71,6 +80,7 @@ const emit = defineEmits(['update-profile', 'modify-password']);
 const loading = ref(false);
 const followingCount = ref(0);
 const followerCount = ref(0);
+const showEditUserDialog = ref(false);
 
 // 获取关注和粉丝数量
 onMounted(async () => {
@@ -92,18 +102,15 @@ onMounted(async () => {
   }
 });
 
-// 模拟更新资料
-const handleUpdate = async () => {
-  loading.value = true;
-  try {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    emit('update-profile');
-    ElMessage.success('资料更新成功！');
-  } catch (error) {
-    ElMessage.error('资料更新失败，请重试！');
-  } finally {
-    loading.value = false;
-  }
+// 打开编辑用户对话框
+const handleUpdate = () => {
+  showEditUserDialog.value = true;
+};
+
+// 用户信息更新成功后的处理
+const handleUserUpdated = () => {
+  emit('update-profile'); // 通知父组件更新用户信息
+  ElMessage.success('用户信息更新成功！');
 };
 
 // 触发修改密码事件
