@@ -8,19 +8,28 @@ import type { PostFavoriteAddRequest } from '@/models/request/psot/PostFavoriteA
  * 博文收藏相关 API 封装
  */
 
-// 获取当前用户收藏的博文列表（分页）
-export function getMyFavoritePosts(params?: {
-    page?: number;
-    size?: number;
-    sort?: string;
-}): Promise<Result<MongoPageResult<Post>>> {
+/**
+ * 获取指定用户收藏的博文列表（支持分页和排序）
+ * @param userId 用户 ID
+ * @param params 分页和排序参数 { page?: number, size?: number, sortBy?: string, sortDir?: 'ASC' | 'DESC' }
+ */
+export function getFavoritePostsByUserId(
+    userId: number,
+    params?: {
+        page?: number;
+        size?: number;
+        sortBy?: string;
+        sortDir?: 'ASC' | 'DESC';
+    }
+): Promise<Result<MongoPageResult<Post>>> {
     return request({
-        url: '/api/post_favorite/my',
+        url: `/api/post_favorite/${userId}`,
         method: 'get',
         params: {
             page: params?.page ?? 0,
             size: params?.size ?? 10,
-            sort: params?.sort ?? 'createdAt,desc'
+            sortBy: params?.sortBy ?? 'createdAt',
+            sortDir: params?.sortDir ?? 'DESC'
         }
     });
 }

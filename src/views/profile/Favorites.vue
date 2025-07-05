@@ -32,10 +32,15 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-import {getMyFavoritePosts} from '@/api/postFavorite';
+import { useRoute } from 'vue-router';
+import router from '@/router';
+import { getFavoritePostsByUserId } from '@/api/postFavorite';
 import type { Post } from '@/models/entity/Post';
 import type { MongoPageResult } from '@/models/response/MongoPageResult.ts';
-import router from '@/router';
+
+// 获取当前路由 userId
+const route = useRoute();
+const userId = Number(route.params.id);
 
 // 分页配置
 const pagination = reactive({
@@ -54,7 +59,7 @@ const pageData = ref<MongoPageResult<Post>>({
 
 const loading = ref(false);
 
-// 日期格式化
+// 格式化日期
 const formatDate = (date?: string | Date) => {
   if (!date) return '';
   const d = new Date(date);
@@ -65,11 +70,13 @@ const formatDate = (date?: string | Date) => {
   });
 };
 
-// 获取收藏列表
-const fetchMyFavorites = async () => {
+// 加载指定用户收藏内容
+const fetchUserFavorites = async () => {
+  if (!userId) return;
+
   loading.value = true;
   try {
-    const res = await getMyFavoritePosts({
+    const res = await getFavoritePostsByUserId(userId, {
       page: pagination.current - 1,
       size: pagination.size,
     });
@@ -84,24 +91,22 @@ const fetchMyFavorites = async () => {
   }
 };
 
-// 分页切换
 const handleCurrentChange = (page: number) => {
   pagination.current = page;
-  fetchMyFavorites();
+  fetchUserFavorites();
 };
 
 const handleSizeChange = (size: number) => {
   pagination.size = size;
   pagination.current = 1;
-  fetchMyFavorites();
+  fetchUserFavorites();
 };
 
-// 点击跳转
 const handlePostClick = (postId?: string) => {
   router.push(`/post/${postId}`);
 };
 
-onMounted(fetchMyFavorites);
+onMounted(fetchUserFavorites);
 </script>
 
 <style scoped>
@@ -148,12 +153,6 @@ onMounted(fetchMyFavorites);
   font-size: 0.9rem;
   color: #666;
   margin-top: 8px;
-}
-
-.post-actions {
-  position: absolute;
-  right: 16px;
-  top: 16px;
 }
 
 .pagination-wrapper {
