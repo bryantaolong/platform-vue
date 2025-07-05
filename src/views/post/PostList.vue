@@ -6,37 +6,41 @@
         <p v-if="loading" class="no-data">加载中...</p>
         <p v-else-if="!pageData.content.length" class="no-data">暂无文章</p>
 
-        <el-card
+        <div
             v-for="post in pageData.content"
             :key="post.id"
-            class="post-card"
-            shadow="hover"
+            class="post-item"
             @click="handlePostClick(post.id!)"
         >
-          <img
-              v-if="post.featuredImage"
-              :src="post.featuredImage"
-              class="featured-image"
-              alt="文章封面图"
-          >
-
-          <div class="post-content">
-            <h2>{{ post.title }}</h2>
+          <div class="post-main">
+            <h2 class="post-title">{{ post.title }}</h2>
 
             <div class="post-meta">
-              <img
-                  src="https://i.pravatar.cc/40"
-                  alt="作者头像"
-                  class="avatar"
-              >
-              <span>作者：{{ post.authorName || '匿名' }}</span>
-              <span>•</span>
-              <span>{{ formatDate(post.createdAt) }}</span>
+              <div class="author-info">
+                <img
+                    src="https://i.pravatar.cc/40"
+                    alt="作者头像"
+                    class="avatar"
+                >
+                <span class="author-name">{{ post.authorName || '匿名' }}</span>
+              </div>
+
+              <div class="post-stats">
+                <span class="stat-item">
+                  <el-icon><View /></el-icon>
+                  {{ formatNumber(post.stats.views || 0) }}
+                </span>
+                <span class="stat-item">
+                  <el-icon><StarFilled /></el-icon>
+                  {{ formatNumber(post.stats.likes || 0) }}
+                </span>
+                <span class="date">{{ formatDate(post.createdAt) }}</span>
+              </div>
             </div>
 
-            <div class="post-tags">
+            <div class="post-tags" v-if="post.tags && post.tags.length">
               <el-tag
-                  v-for="tag in post.tags || []"
+                  v-for="tag in post.tags"
                   :key="tag"
                   size="small"
                   type="info"
@@ -46,7 +50,15 @@
               </el-tag>
             </div>
           </div>
-        </el-card>
+
+          <div class="post-thumbnail" v-if="post.featuredImage">
+            <img
+                :src="post.featuredImage"
+                :alt="post.title"
+                class="thumbnail-image"
+            >
+          </div>
+        </div>
       </div>
 
       <!-- 分页栏 -->
@@ -70,6 +82,7 @@
 <script setup lang="ts">
 import {ref, reactive, onMounted} from 'vue';
 import {useRouter} from 'vue-router';
+import {View, StarFilled} from '@element-plus/icons-vue';
 import {getAllPublishedPosts} from '@/api/post';
 import type {Post} from '@/models/entity/Post';
 import type {MongoPageResult} from '@/models/response/MongoPageResult';
@@ -102,6 +115,14 @@ const formatDate = (date?: Date | string) => {
     month: 'long',
     day: 'numeric',
   });
+};
+
+// 格式化数字
+const formatNumber = (num: number) => {
+  if (num >= 1000) {
+    return (num / 1000).toFixed(1) + 'k';
+  }
+  return num.toString();
 };
 
 // 获取文章数据
@@ -152,7 +173,6 @@ const handlePostClick = (postId?: string) => {
   router.push(`/post/${postId}`);
 };
 
-
 // 初始化加载
 onMounted(fetchPosts);
 </script>
@@ -160,15 +180,16 @@ onMounted(fetchPosts);
 <style scoped>
 .post-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 20px;
+  background-color: #f5f5f5;
 }
 
 .post-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
   margin-bottom: 30px;
 }
 
@@ -176,40 +197,50 @@ onMounted(fetchPosts);
   text-align: center;
   color: #999;
   font-size: 1rem;
-  grid-column: 1 / -1;
+  padding: 40px;
+  background: white;
+  border-radius: 8px;
 }
 
-.post-card {
-  height: 100%;
+.post-item {
   display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  cursor: pointer;
-}
-
-.post-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-}
-
-.featured-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 4px 4px 0 0;
-}
-
-.post-content {
+  background: white;
+  border-radius: 8px;
   padding: 20px;
-  flex-grow: 1;
-  display: flex;
-  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
 }
 
-.post-content h2 {
-  margin: 0 0 10px 0;
-  font-size: 1.2rem;
-  color: #333;
+.post-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #1890ff;
+}
+
+.post-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.post-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #2c3e50;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.post-summary {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -217,42 +248,136 @@ onMounted(fetchPosts);
 }
 
 .post-meta {
-  color: #666;
-  font-size: 0.9rem;
-  margin: 10px 0;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  gap: 12px;
+}
+
+.author-info {
+  display: flex;
+  align-items: center;
   gap: 8px;
 }
 
-.post-meta .avatar {
-  width: 20px;
-  height: 20px;
+.avatar {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  margin-right: 5px;
+  object-fit: cover;
+}
+
+.author-name {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.post-stats {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-item .el-icon {
+  font-size: 14px;
+}
+
+.date {
+  color: #999;
 }
 
 .post-tags {
-  margin-top: auto;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: auto;
+}
+
+.tag {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: #f0f0f0;
+  color: #666;
+  border: none;
+}
+
+.post-thumbnail {
+  margin-left: 20px;
+  flex-shrink: 0;
+}
+
+.thumbnail-image {
+  width: 120px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 6px;
 }
 
 .pagination-wrapper {
   display: flex;
   justify-content: center;
   margin-top: 30px;
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
 }
 
+/* 响应式设计 */
 @media (max-width: 768px) {
-  .post-list {
-    grid-template-columns: 1fr;
+  .post-container {
+    padding: 12px;
   }
 
-  .post-content h2 {
-    font-size: 1rem;
+  .post-item {
+    padding: 16px;
+    flex-direction: column;
+  }
+
+  .post-thumbnail {
+    margin-left: 0;
+    margin-top: 12px;
+    align-self: center;
+  }
+
+  .thumbnail-image {
+    width: 100%;
+    height: 180px;
+  }
+
+  .post-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .post-stats {
+    gap: 12px;
+  }
+
+  .post-title {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .post-stats {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .post-tags {
+    margin-top: 8px;
   }
 }
 </style>

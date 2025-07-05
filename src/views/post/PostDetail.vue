@@ -101,9 +101,9 @@ onMounted(fetchPost);
 
 <style scoped>
 .post-detail-container {
-  max-width: 900px;
+  max-width: 900px; /* 调整为略窄的宽度 */
   margin: 0 auto;
-  padding: 30px;
+  padding: 30px 20px; /* 调整左右padding */
   background-color: #f8f9fa;
   min-height: 100vh;
 }
@@ -125,11 +125,12 @@ onMounted(fetchPost);
   display: flex;
   flex-direction: column;
   gap: 24px;
+  width: 100%; /* 确保wrapper占满容器宽度 */
 }
 
 /* 文章主体样式 */
 .post-content {
-  background-color: #fff;
+  background-color: #ffffff;
   padding: 40px;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
@@ -272,7 +273,8 @@ onMounted(fetchPost);
 /* 响应式设计 */
 @media (max-width: 768px) {
   .post-detail-container {
-    padding: 20px;
+    max-width: 100%;
+    padding: 20px 15px;
   }
 
   .post-content {

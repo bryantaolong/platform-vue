@@ -58,7 +58,4 @@ onMounted(() => loadData())
 </script>
 
 <style scoped>
-.el-avatar {
-  border: 1px solid #e5e7eb;
-}
 </style>
