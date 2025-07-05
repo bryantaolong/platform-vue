@@ -75,6 +75,7 @@ const routes = [
             {
                 path: '',
                 component: () => import('@/views/Profile.vue'), // ⬅️ 中间页面，包含顶部信息、菜单栏
+                redirect: '/user/publishes',
                 children: [
                     {
                         path: 'publishes',
