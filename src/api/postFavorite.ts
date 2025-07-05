@@ -34,16 +34,8 @@ export function addPostFavorite(data: PostFavoriteAddRequest): Promise<Result<st
     });
 }
 
-// 根据收藏记录ID取消收藏
-export function deletePostFavoriteById(favoriteId: string): Promise<Result<string>> {
-    return request({
-        url: `/api/post_favorite/${favoriteId}`,
-        method: 'delete'
-    });
-}
-
 // 根据博文ID取消收藏
-export function deletePostFavoriteByPostId(postId: string): Promise<Result<string>> {
+export function deletePostFavorite(postId: string): Promise<Result<string>> {
     return request({
         url: `/api/post_favorite/post/${postId}`,
         method: 'delete'
