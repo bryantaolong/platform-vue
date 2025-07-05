@@ -26,7 +26,7 @@
               </div>
             </div>
 
-            <!-- ✅ 只有在本人主页时才展示按钮 -->
+            <!-- ✅ 通过 showEditButtons 控制按钮显示 -->
             <div v-if="showEditButtons" class="action-buttons">
               <el-button
                   type="primary"
@@ -45,11 +45,20 @@
                 修改密码
               </el-button>
             </div>
+
+            <!-- ✅ 非本人主页显示访问提示 -->
+            <div v-else class="visitor-info">
+              <el-text type="info" size="small">
+                <el-icon><View /></el-icon>
+                正在查看 {{ user.username }} 的主页
+              </el-text>
+            </div>
           </div>
         </el-main>
       </el-container>
     </el-card>
 
+    <!-- 编辑用户信息弹窗 -->
     <EditUserDialog
         :visible="showEditUserDialog"
         :user-data="user"
@@ -60,25 +69,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
+import { View } from '@element-plus/icons-vue'
 import router from '@/router'
 import EditUserDialog from '@/components/user/operations/EditUserDialog.vue'
 import { getFollowingUsers, getFollowerUsers } from '@/api/userFollow'
 import type { User } from '@/models/entity/User'
 
+// Props 定义
 const props = defineProps<{
   user: User
-  showEditButtons?: boolean // ✅ 新增参数，默认不展示按钮
+  showEditButtons?: boolean // ✅ 控制是否显示编辑按钮，默认为 false
 }>()
 
+// 设置默认值
+const showEditButtons = computed(() => props.showEditButtons ?? false)
+
+// 事件定义
 const emit = defineEmits(['update-profile', 'modify-password'])
 
+// 响应式数据
 const loading = ref(false)
 const followingCount = ref(0)
 const followerCount = ref(0)
 const showEditUserDialog = ref(false)
 
+// 组件挂载时获取关注和粉丝数据
 onMounted(async () => {
   try {
     const [followingRes, followerRes] = await Promise.all([
@@ -93,19 +110,26 @@ onMounted(async () => {
       followerCount.value = followerRes.data.total
     }
   } catch (e) {
-    ElMessage.error('加载关注/粉丝失败')
+    console.error('加载关注/粉丝数据失败:', e)
+    // 对于访问他人主页的情况，可能没有权限获取详细数据，不显示错误提示
+    if (showEditButtons.value) {
+      ElMessage.error('加载关注/粉丝失败')
+    }
   }
 })
 
+// 处理修改用户信息
 const handleUpdate = () => {
   showEditUserDialog.value = true
 }
 
+// 处理用户信息更新成功
 const handleUserUpdated = () => {
   emit('update-profile')
   ElMessage.success('更新成功')
 }
 
+// 处理修改密码
 const handleModifyPassword = () => {
   loading.value = true
   try {
@@ -116,12 +140,14 @@ const handleModifyPassword = () => {
   }
 }
 
+// 查看关注列表
 const handleViewFollowing = () => {
-  router.push(`/user/${props.user.id}/following`);
+  router.push(`/user/${props.user.id}/following`)
 }
 
+// 查看粉丝列表
 const handleViewFollowers = () => {
-  router.push(`/user/${props.user.id}/followers`);
+  router.push(`/user/${props.user.id}/followers`)
 }
 </script>
 
@@ -266,6 +292,24 @@ const handleViewFollowers = () => {
   box-shadow: 0 4px 12px rgba(79, 209, 199, 0.4);
 }
 
+/* ✅ 访问者信息样式 */
+.visitor-info {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.visitor-info .el-text {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+}
+
 /* 隐藏 Element Plus 容器的滚动条 */
 :deep(.el-container) {
   overflow: visible;
@@ -311,6 +355,11 @@ const handleViewFollowers = () => {
 
   .action-btn {
     width: 100%;
+  }
+
+  .visitor-info {
+    justify-content: center;
+    text-align: center;
   }
 }
 </style>
