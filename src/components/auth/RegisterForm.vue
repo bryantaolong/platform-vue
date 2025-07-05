@@ -102,7 +102,7 @@ const submitForm = async () => {
         email: registerForm.email
       };
 
-      const res = await userStore.registerAction(submitData); // 调用 Pinia store 的注册方法
+      const res = await userStore.register(submitData); // 调用 Pinia store 的注册方法
 
       if (res && res.code === 200) {
         ElMessage.success('注册成功！');
