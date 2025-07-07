@@ -8,11 +8,16 @@
       <article class="post-content">
         <h1 class="title">
           {{ post.title }}
-          <PostFavoriteButton :post-id="post.id"/>
+          <PostFavoriteButton :post-id="post.id" />
         </h1>
 
         <div class="meta">
-          <img src="https://i.pravatar.cc/40" alt="作者头像" class="author-avatar" @click="handleClickAuthorAvatar()"/>
+          <img
+              src="https://i.pravatar.cc/40"
+              alt="作者头像"
+              class="author-avatar"
+              @click="handleClickAuthorAvatar()"
+          />
           <span @click="handleClickAuthorAvatar" class="author-name">{{ post.authorName || '匿名' }}</span>
           <span>•</span>
           <span>{{ formatDate(post.createdAt) }}</span>
@@ -28,12 +33,7 @@
         <div class="body" v-html="post.content"></div>
 
         <div class="tags">
-          <el-tag
-              v-for="tag in post.tags || []"
-              :key="tag"
-              type="info"
-              size="small"
-          >
+          <el-tag v-for="tag in post.tags || []" :key="tag" type="info" size="small">
             {{ tag }}
           </el-tag>
         </div>
@@ -43,10 +43,27 @@
       <section class="comments-section">
         <h2 class="comments-title">评论</h2>
 
+        <!-- 发布评论表单 -->
+        <div class="comment-form">
+          <el-input
+              v-model="newCommentContent"
+              type="textarea"
+              placeholder="说点什么吧..."
+              :autosize="{ minRows: 3, maxRows: 6 }"
+              class="comment-textarea"
+          />
+          <div class="form-actions">
+            <el-button type="primary" @click="handleSubmitComment" :loading="submitting">
+              发布评论
+            </el-button>
+          </div>
+        </div>
+
+        <!-- 评论列表 -->
         <div v-if="post.comments?.length" class="comments-list">
           <div v-for="comment in post.comments" :key="comment.id" class="comment">
             <div class="comment-header">
-              <img src="https://i.pravatar.cc/40?u=" class="comment-avatar"/>
+              <img src="https://i.pravatar.cc/40?u=" class="comment-avatar" alt="评论者头像" />
               <div class="comment-meta">
                 <strong>{{ comment.authorName || '匿名用户' }}</strong>
                 <div class="comment-date">{{ formatDate(comment.createdAt) }}</div>
@@ -63,17 +80,22 @@
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted} from 'vue';
-import {useRoute} from 'vue-router';
-import {getPostById} from '@/api/post';
-import type {Post} from '@/models/entity/Post';
-import PostFavoriteButton from "@/components/post/PostFavoriteButton.vue";
-import router from "@/router";
-import {getUserByUsername} from "@/api/user.ts";
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import { getPostById, addComment } from '@/api/post';
+import type { Post } from '@/models/entity/Post';
+import type { Comment } from '@/models/entity/Comment';
+import PostFavoriteButton from '@/components/post/PostFavoriteButton.vue';
+import router from '@/router';
+import { getUserByUsername } from '@/api/user.ts';
+import { ElMessage } from 'element-plus';
 
 const route = useRoute();
 const post = ref<Post | null>(null);
 const loading = ref(true);
+
+const newCommentContent = ref('');
+const submitting = ref(false);
 
 const formatDate = (date?: string | Date) => {
   if (!date) return '';
@@ -108,15 +130,41 @@ const handleClickAuthorAvatar = async () => {
   try {
     const res = await getUserByUsername(post.value.authorName);
     if (res.code === 200 && res.data) {
-      // 假设用户详情中包含id字段
       router.push(`/user/${res.data.id}/publications`);
     } else {
       console.error('获取用户信息失败');
-      // 可以添加用户提示，比如使用Element Plus的ElMessage
     }
   } catch (err) {
     console.error('获取用户信息出错', err);
-    // 可以添加用户提示
+  }
+};
+
+const handleSubmitComment = async () => {
+  if (!newCommentContent.value.trim()) {
+    ElMessage.warning('请输入评论内容');
+    return;
+  }
+
+  submitting.value = true;
+
+  const comment: Partial<Comment> = {
+    content: newCommentContent.value
+  };
+
+  try {
+    const res = await addComment(post.value!.id, comment as Comment);
+    if (res.code === 200) {
+      ElMessage.success('评论发布成功');
+      newCommentContent.value = '';
+      await fetchPost(); // 重新加载评论
+    } else {
+      ElMessage.error(res.message || '评论发布失败');
+    }
+  } catch (err) {
+    console.error('评论提交失败', err);
+    ElMessage.error('评论提交异常');
+  } finally {
+    submitting.value = false;
   }
 };
 
@@ -125,9 +173,9 @@ onMounted(fetchPost);
 
 <style scoped>
 .post-detail-container {
-  max-width: 900px; /* 调整为略窄的宽度 */
+  max-width: 900px;
   margin: 0 auto;
-  padding: 30px 20px; /* 调整左右padding */
+  padding: 30px 20px;
   background-color: #f8f9fa;
   min-height: 100vh;
 }
@@ -149,10 +197,9 @@ onMounted(fetchPost);
   display: flex;
   flex-direction: column;
   gap: 24px;
-  width: 100%; /* 确保wrapper占满容器宽度 */
+  width: 100%;
 }
 
-/* 文章主体样式 */
 .post-content {
   background-color: #ffffff;
   padding: 40px;
@@ -213,7 +260,6 @@ onMounted(fetchPost);
   flex-wrap: wrap;
 }
 
-/* 评论区样式 */
 .comments-section {
   background-color: #fff;
   border-radius: 12px;
@@ -231,6 +277,19 @@ onMounted(fetchPost);
   font-weight: 600;
   border-bottom: 2px solid #f8f9fa;
   padding-bottom: 12px;
+}
+
+.comment-form {
+  margin-bottom: 24px;
+}
+
+.comment-textarea {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.form-actions {
+  text-align: right;
 }
 
 .comments-list {
@@ -299,7 +358,6 @@ onMounted(fetchPost);
   border: 1px dashed #dee2e6;
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
   .post-detail-container {
     max-width: 100%;
