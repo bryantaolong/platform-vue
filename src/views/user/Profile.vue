@@ -69,7 +69,7 @@ import UserInfoCard from '@/components/user/UserInfoCard.vue';
 import ChangePasswordDialog from '@/components/user/operations/ChangePasswordDialog.vue';
 import type { User } from '@/models/entity/User.ts';
 // 导入获取其他用户信息的API（需要您根据实际情况实现）
-import { getUserById } from '@/api/user';
+import { getUserById } from '@/api/user.ts';
 
 const route = useRoute();
 const userStore = useUserStore();

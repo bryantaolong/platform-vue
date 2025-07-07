@@ -40,7 +40,7 @@ const routes: RouteRecordRaw[] = [
             {
                 path: '',
                 name: 'Login',
-                component: () => import('@/views/Login.vue')
+                component: () => import('@/views/auth/Login.vue')
             }
         ]
     },
@@ -51,7 +51,7 @@ const routes: RouteRecordRaw[] = [
             {
                 path: '',
                 name: 'Register',
-                component: () => import('@/views/Register.vue')
+                component: () => import('@/views/auth/Register.vue')
             }
         ]
     },
@@ -62,33 +62,33 @@ const routes: RouteRecordRaw[] = [
         children: [
             {
                 path: '',
-                component: () => import('@/views/Profile.vue'),
+                component: () => import('@/views/user/Profile.vue'),
                 redirect: to => `/user/${to.params.id}/publications`,
                 children: [
                     {
                         path: 'publications',
                         name: 'UserPublications',
-                        component: () => import('@/views/profile/Publications.vue')
+                        component: () => import('@/views/user/Publications.vue')
                     },
                     {
                         path: 'favorites',
                         name: 'UserFavorites',
-                        component: () => import('@/views/profile/Favorites.vue')
+                        component: () => import('@/views/user/Favorites.vue')
                     },
                     {
                         path: 'settings',
                         name: 'UserSettings',
-                        component: () => import('@/views/profile/Settings.vue')
+                        component: () => import('@/views/user/Settings.vue')
                     },
                     {
                         path: 'following',
                         name: 'UserFollowing',
-                        component: () => import('@/views/profile/Following.vue')
+                        component: () => import('@/views/user/Following.vue')
                     },
                     {
                         path: 'followers',
                         name: 'UserFollowers',
-                        component: () => import('@/views/profile/Followers.vue')
+                        component: () => import('@/views/user/Followers.vue')
                     }
                 ]
             }
