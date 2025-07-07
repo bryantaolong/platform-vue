@@ -8,7 +8,7 @@
       <article class="post-content">
         <h1 class="title">
           {{ post.title }}
-          <PostFavoriteButton :post-id="post.id" />
+          <PostFavoriteButton :post-id="post.id!" />
         </h1>
 
         <div class="meta">
@@ -145,24 +145,26 @@ const handleSubmitComment = async () => {
     return;
   }
 
+  if (!post.value?.id) {  // 显式检查
+    ElMessage.error('文章ID不可用');
+    return;
+  }
+
   submitting.value = true;
 
-  const comment: Partial<Comment> = {
-    content: newCommentContent.value
-  };
-
   try {
-    const res = await addComment(post.value!.id, comment as Comment);
+    const res = await addComment(
+        post.value.id,  // 确保使用已检查的id
+        { content: newCommentContent.value } as Comment
+    );
+
     if (res.code === 200) {
-      ElMessage.success('评论发布成功');
+      ElMessage.success('评论发布成功');  // 修正了图片中的错误语法
       newCommentContent.value = '';
-      await fetchPost(); // 重新加载评论
-    } else {
-      ElMessage.error(res.message || '评论发布失败');
+      await fetchPost();  // 重新加载评论
     }
   } catch (err) {
-    console.error('评论提交失败', err);
-    ElMessage.error('评论提交异常');
+    ElMessage.error('评论提交失败');
   } finally {
     submitting.value = false;
   }
