@@ -68,6 +68,27 @@ export function getPostsByAuthorId(
     });
 }
 
+/**
+ * 获取当前用户关注的用户发布的博文列表（支持分页）
+ * @param params 分页和排序参数 { page?: number, size?: number, sortBy?: string, sortDir?: 'ASC' | 'DESC' }
+ */
+export function getFollowingPosts(params?: {
+    page?: number;
+    size?: number;
+    sortBy?: string;
+    sortDir?: 'ASC' | 'DESC';
+}): Promise<Result<MongoPageResult<Post>>> {
+    return request({
+        url: '/api/posts/following',
+        method: 'get',
+        params: {
+            page: params?.page ?? 0,
+            size: params?.size ?? 10,
+            sortBy: params?.sortBy ?? 'createdAt',
+            sortDir: params?.sortDir ?? 'DESC'
+        }
+    });
+}
 
 /**
  * 根据 Slug 获取单篇博文详情

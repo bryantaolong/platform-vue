@@ -85,6 +85,7 @@ import router from '@/router'
 import EditUserDialog from '@/components/user/operations/EditUserDialog.vue'
 import {getFollowingUsers, getFollowerUsers, unfollowUser, followUser, isFollowing} from '@/api/userFollow'
 import type {User} from '@/models/entity/User'
+import {View} from "@element-plus/icons-vue";
 
 // Props
 const props = defineProps<{
