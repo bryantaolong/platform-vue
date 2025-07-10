@@ -27,10 +27,16 @@ const routes: RouteRecordRaw[] = [
                 component: () => import('@/views/home/Hot.vue')
             },
             {
-                path: '/post/:id',
+                path: 'post/:id',
                 name: 'PostDetail',
                 component: () => import('@/views/post/PostDetail.vue')
             },
+            {
+                path: 'editor',
+                name: 'Editor',
+                meta: { requiresAuth: true },
+                component: () => import('@/components/post/PostEditor.vue')
+            }
         ]
     },
     {
