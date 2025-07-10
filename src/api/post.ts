@@ -107,7 +107,7 @@ export function getPostBySlug(slug: string): Promise<Result<Post>> {
  */
 export function createPost(data: Post): Promise<Result<Post>> {
     return request({
-        url: '/api/posts',
+        url: '/api/posts/post',
         method: 'post',
         data
     });
