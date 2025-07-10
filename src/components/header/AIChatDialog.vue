@@ -3,7 +3,11 @@
   <el-dialog v-model="visible" title="AI 聊天" width="600px">
     <div class="chat-box">
       <div class="chat-messages">
-        <div v-for="(msg, index) in messages" :key="index" :class="msg.role">
+        <div
+            v-for="(msg, index) in messages"
+            :key="index"
+            :class="msg.role"
+        >
           <span v-html="renderMarkdown(msg.content)"></span>
         </div>
       </div>
@@ -16,8 +20,10 @@
           :disabled="loading"
       />
     </div>
+
     <template #footer>
       <el-button @click="visible = false">关闭</el-button>
+      <el-button type="warning" plain @click="handleClearContext">清空上下文</el-button>
       <el-button type="primary" @click="sendMessage" :loading="loading">发送</el-button>
     </template>
   </el-dialog>
@@ -25,18 +31,21 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import request from '@/utils/request';
 import { marked } from 'marked';
+import { ElMessage, ElMessageBox } from 'element-plus';
+import { sendChatMessage, clearChatContext } from '@/api/aiChat';
 
 const visible = ref(false);
 const userMessage = ref('');
 const messages = ref<{ role: string; content: string }[]>([]);
 const loading = ref(false);
 
+// 打开对话框的方法（供外部调用）
 const open = () => {
   visible.value = true;
 };
 
+// 发送消息
 const sendMessage = async () => {
   if (!userMessage.value.trim()) return;
 
@@ -47,11 +56,10 @@ const sendMessage = async () => {
   loading.value = true;
 
   try {
-    // 2. 请求 AI 响应
-    const res: { reply: string } = await request.post('/api/ai/chat', { message: input });
-    // 3. 添加 AI 回复
+    // 2. 发送消息到后端
+    const res = await sendChatMessage(input);
+    // 3. 显示 AI 回复
     messages.value.push({ role: 'ai', content: res.reply });
-
   } catch (err) {
     messages.value.push({ role: 'ai', content: '⚠️ 请求失败，请稍后重试。' });
   } finally {
@@ -59,10 +67,35 @@ const sendMessage = async () => {
   }
 };
 
+// 清空上下文
+const handleClearContext = async () => {
+  try {
+    await ElMessageBox.confirm(
+        '确定要清空 AI 的上下文记忆吗？这会重置对话上下文。',
+        '清空上下文确认',
+        {
+          type: 'warning',
+          confirmButtonText: '确认',
+          cancelButtonText: '取消',
+        }
+    );
+
+    const res = await clearChatContext();
+    messages.value = [];
+    ElMessage.success(res.data || '上下文已清空');
+  } catch (err) {
+    if (err !== 'cancel') {
+      ElMessage.error('清空失败，请稍后重试');
+    }
+  }
+};
+
+// Markdown 渲染
 const renderMarkdown = (text: string) => {
   return marked.parse(text || '');
 };
 
+// 让父组件可以调用 open()
 defineExpose({ open });
 </script>
 
