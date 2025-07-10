@@ -39,7 +39,11 @@
             alt="封面图"
         />
 
-        <div class="body" v-html="post.content"></div>
+<!--        原生 HTML 渲染-->
+<!--        <div class="body" v-html="post.content"></div>-->
+
+<!--        Markdown 渲染-->
+        <div class="body" v-html="renderedMarkdown"></div>
 
         <div class="tags">
           <el-tag v-for="tag in post.tags || []" :key="tag" type="info" size="small">
@@ -89,7 +93,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getPostById, addComment } from '@/api/post'
 import type { Post } from '@/models/entity/Post'
@@ -99,6 +103,7 @@ import { ElMessage } from 'element-plus'
 import { getUserByUsername } from '@/api/user'
 import { useUserStore } from '@/stores/user'
 import { Edit } from '@element-plus/icons-vue'
+import { marked } from 'marked'
 
 const route = useRoute()
 const router = useRouter()
@@ -141,6 +146,10 @@ const fetchPost = async () => {
     loading.value = false
   }
 }
+
+const renderedMarkdown = computed(() =>
+    post.value?.content ? marked.parse(post.value.content) : ''
+)
 
 /**
  * 点击作者头像，跳转作者主页
