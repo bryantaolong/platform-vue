@@ -9,6 +9,15 @@
         <h1 class="title">
           {{ post.title }}
           <PostFavoriteButton :post-id="post.id!" />
+          <el-button
+              v-if="userStore.userInfo?.username === post.authorName"
+              type="text"
+              size="small"
+              @click="goToEditor"
+              class="edit-button"
+          >
+            <el-icon><edit /></el-icon> 编辑
+          </el-button>
         </h1>
 
         <div class="meta">
@@ -80,97 +89,120 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { useRoute } from 'vue-router';
-import { getPostById, addComment } from '@/api/post';
-import type { Post } from '@/models/entity/Post';
-import type { Comment } from '@/models/entity/Comment';
-import PostFavoriteButton from '@/components/post/PostFavoriteButton.vue';
-import router from '@/router';
-import { getUserByUsername } from '@/api/user.ts';
-import { ElMessage } from 'element-plus';
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { getPostById, addComment } from '@/api/post'
+import type { Post } from '@/models/entity/Post'
+import type { Comment } from '@/models/entity/Comment'
+import PostFavoriteButton from '@/components/post/PostFavoriteButton.vue'
+import { ElMessage } from 'element-plus'
+import { getUserByUsername } from '@/api/user'
+import { useUserStore } from '@/stores/user'
+import { Edit } from '@element-plus/icons-vue'
 
-const route = useRoute();
-const post = ref<Post | null>(null);
-const loading = ref(true);
+const route = useRoute()
+const router = useRouter()
+const userStore = useUserStore()
 
-const newCommentContent = ref('');
-const submitting = ref(false);
+const post = ref<Post | null>(null)
+const loading = ref(true)
+const newCommentContent = ref('')
+const submitting = ref(false)
 
+/**
+ * 格式化日期为中文格式
+ */
 const formatDate = (date?: string | Date) => {
-  if (!date) return '';
+  if (!date) return ''
   return new Date(date).toLocaleDateString('zh-CN', {
     year: 'numeric',
     month: 'long',
     day: 'numeric'
-  });
-};
+  })
+}
 
+/**
+ * 获取博文详情
+ */
 const fetchPost = async () => {
-  const id = route.params.id as string;
+  const id = route.params.id as string
 
   try {
-    const res = await getPostById(id);
+    const res = await getPostById(id)
     if (res.code === 200 && res.data) {
-      post.value = res.data;
+      post.value = res.data
     } else {
-      post.value = null;
+      post.value = null
     }
   } catch (err) {
-    console.error('获取文章详情失败', err);
-    post.value = null;
+    console.error('获取文章详情失败', err)
+    post.value = null
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
+/**
+ * 点击作者头像，跳转作者主页
+ */
 const handleClickAuthorAvatar = async () => {
-  if (!post.value?.authorName) return;
+  if (!post.value?.authorName) return
 
   try {
-    const res = await getUserByUsername(post.value.authorName);
+    const res = await getUserByUsername(post.value.authorName)
     if (res.code === 200 && res.data) {
-      router.push(`/user/${res.data.id}/publications`);
+      router.push(`/user/${res.data.id}/publications`)
     } else {
-      console.error('获取用户信息失败');
+      console.error('获取用户信息失败')
     }
   } catch (err) {
-    console.error('获取用户信息出错', err);
+    console.error('获取用户信息出错', err)
   }
-};
+}
 
+/**
+ * 提交评论
+ */
 const handleSubmitComment = async () => {
   if (!newCommentContent.value.trim()) {
-    ElMessage.warning('请输入评论内容');
-    return;
+    ElMessage.warning('请输入评论内容')
+    return
   }
 
-  if (!post.value?.id) {  // 显式检查
-    ElMessage.error('文章ID不可用');
-    return;
+  if (!post.value?.id) {
+    ElMessage.error('文章ID不可用')
+    return
   }
 
-  submitting.value = true;
+  submitting.value = true
 
   try {
-    const res = await addComment(
-        post.value.id,  // 确保使用已检查的id
-        { content: newCommentContent.value } as Comment
-    );
+    const res = await addComment(post.value.id, {
+      content: newCommentContent.value
+    } as Comment)
 
     if (res.code === 200) {
-      ElMessage.success('评论发布成功');  // 修正了图片中的错误语法
-      newCommentContent.value = '';
-      await fetchPost();  // 重新加载评论
+      ElMessage.success('评论发布成功')
+      newCommentContent.value = ''
+      await fetchPost()
     }
   } catch (err) {
-    ElMessage.error('评论提交失败');
+    ElMessage.error('评论提交失败')
   } finally {
-    submitting.value = false;
+    submitting.value = false
   }
-};
+}
 
-onMounted(fetchPost);
+/**
+ * 点击“编辑”按钮跳转到编辑器
+ */
+const goToEditor = () => {
+  if (post.value?.id) {
+    router.push(`/editor?id=${post.value.id}`)
+  }
+}
+
+onMounted(fetchPost)
 </script>
 
 <style scoped>
@@ -217,6 +249,18 @@ onMounted(fetchPost);
   margin-bottom: 16px;
   color: #1a1a1a;
   line-height: 1.3;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.edit-button {
+  font-size: 14px;
+  color: #409eff;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
 }
 
 .meta {
