@@ -9,6 +9,9 @@
         <el-menu-item index="/admin/users">
           <span>用户管理</span>
         </el-menu-item>
+        <el-menu-item index="/admin/posts">
+          <span>博文管理</span>
+        </el-menu-item>
         <el-menu-item index="/">
           <span>退出后台</span>
         </el-menu-item>

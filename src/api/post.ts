@@ -10,6 +10,29 @@ import type { MongoPageResult } from '@/models/response/MongoPageResult.ts';
  */
 
 /**
+ * 管理员获取所有博文（支持分页与排序）
+ * @param params 分页和排序参数 { page?: number, size?: number, sortBy?: string, sortDir?: 'ASC' | 'DESC' }
+ */
+export function getAllPosts(params?: {
+    page?: number;
+    size?: number;
+    sortBy?: string;
+    sortDir?: 'ASC' | 'DESC';
+}): Promise<Result<MongoPageResult<Post>>> {
+    // 假设后端 Controller 的 @RequestMapping 为 /api/posts
+    return request({
+        url: '/api/posts/admin/all',
+        method: 'get',
+        params: {
+            page: params?.page ?? 0,
+            size: params?.size ?? 10,
+            sortBy: params?.sortBy ?? 'createdAt',
+            sortDir: params?.sortDir ?? 'DESC'
+        }
+    });
+}
+
+/**
  * 获取所有已发布的博文列表（支持分页和排序）
  * @param params 分页和排序参数 { page?: number, size?: number, sortBy?: string, sortDir?: 'ASC' | 'DESC' }
  */

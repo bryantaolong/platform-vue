@@ -35,7 +35,7 @@ const routes: RouteRecordRaw[] = [
                 path: 'editor',
                 name: 'Editor',
                 meta: { requiresAuth: true },
-                component: () => import('@/components/post/PostEditor.vue')
+                component: () => import('@/views/post/PostEditor.vue')
             }
         ]
     },
@@ -116,6 +116,12 @@ const routes: RouteRecordRaw[] = [
                 path: 'users',
                 name: 'Users',
                 component: () => import('@/views/admin/Users.vue'),
+                meta: { requiresAdmin: true }
+            },
+            {
+                path: 'posts',
+                name: 'Posts',
+                component: () => import('@/views/admin/Posts.vue'),
                 meta: { requiresAdmin: true }
             }
         ]
