@@ -14,6 +14,19 @@
       <template #default="{ row }">
         <el-button link type="primary" size="small" @click="$emit('edit', row)">编辑</el-button>
         <el-button link type="danger" size="small" @click="$emit('delete', row)">删除</el-button>
+        <el-dropdown size="small" @command="command => $emit('export', row, command)">
+          <el-button link type="primary" size="small">
+            导出<el-icon class="el-icon--right"><arrow-down /></el-icon>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="txt">TXT</el-dropdown-item>
+              <el-dropdown-item command="md">Markdown</el-dropdown-item>
+              <el-dropdown-item command="docx">Word (DOCX)</el-dropdown-item>
+              <el-dropdown-item command="pdf">PDF</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </template>
     </el-table-column>
   </el-table>
@@ -21,12 +34,15 @@
 
 <script setup lang="ts">
 import type { Post } from '@/models/entity/Post';
+import { ElDropdown, ElDropdownMenu, ElDropdownItem, ElIcon, ElButton, ElTag } from 'element-plus';
+import { ArrowDown } from '@element-plus/icons-vue';
 
 defineProps<{
   posts: Post[];
   loading: boolean;
 }>();
-defineEmits(['edit', 'delete']);
+// 更新 defineEmits，添加 'export' 事件
+defineEmits(['edit', 'delete', 'export']);
 
 const statusLabel = (status: string) => {
   switch (status) {

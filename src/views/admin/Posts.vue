@@ -18,7 +18,7 @@
           :loading="loading"
           @edit="openEditDialog"
           @delete="handleDeletePost"
-      />
+          @export="handleExportPost" />
 
       <el-pagination
           class="pagination"
@@ -43,13 +43,15 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue';
-// 1. 从 element-plus 导入 ElMessageBox 和 ElMessage
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { getAllPosts, deletePost } from '@/api/post'; // 假设你已经更新了 api/post.ts
+import { getAllPosts, deletePost } from '@/api/post';
 import type { Post } from '@/models/entity/Post';
 import PostSearchForm from '@/components/post/admin/PostSearchForm.vue';
 import PostTable from '@/components/post/admin/PostTable.vue';
 import EditPostDialog from '@/components/post/admin/EditPostDialog.vue';
+// 导入你的导出工具类
+import { exportAsText, exportAsDocx, exportAsPdf } from '@/utils/exportUtil';
+
 
 const postList = ref<Post[]>([]);
 const total = ref(0);
@@ -71,12 +73,9 @@ const searchForm = reactive({
 const fetchPosts = async () => {
   loading.value = true;
   try {
-    // 注意: 这里应该使用为管理员设计的 getAllPosts 函数
     const res = await getAllPosts({
-      page: currentPage.value - 1, // 后端页码从 0 开始
+      page: currentPage.value - 1,
       size: pageSize.value,
-      // 注意: 后端接口似乎不支持按 title, authorId, status 搜索，
-      // 如果需要此功能，后端也需要同步修改。此处暂时保持原样。
       ...searchForm
     });
 
@@ -137,35 +136,60 @@ const openEditDialog = (post: Post) => {
 
 /**
  * 删除文章
- * 2. 修改 handleDeletePost 函数
  */
 const handleDeletePost = async (post: Post) => {
   try {
-    // 在删除前弹出确认框
     await ElMessageBox.confirm(
-        `确定要删除博文《${post.title}》吗？此操作不可撤销。`, // 提示信息，使用模板字符串更友好
-        '确认删除', // 弹窗标题
+        `确定要删除博文《${post.title}》吗？此操作不可撤销。`,
+        '确认删除',
         {
           confirmButtonText: '确定删除',
           cancelButtonText: '取消',
-          type: 'warning', // 警告类型图标
+          type: 'warning',
         }
     );
 
-    // 如果用户点击了“确定”，则会继续执行下面的代码
     await deletePost(post.id!);
     ElMessage.success('删除成功');
-    await fetchPosts(); // 重新加载列表
+    await fetchPosts();
 
   } catch (error) {
-    // 如果用户点击了“取消”，或者关闭了弹窗，`ElMessageBox.confirm` 会抛出一个异常
-    // 我们可以捕获这个异常来处理取消操作
     if (error === 'cancel') {
       ElMessage.info('已取消删除');
     } else {
-      // 如果是其他错误（例如 API 调用失败），则显示通用错误信息
       ElMessage.error('删除失败');
     }
+  }
+};
+
+/**
+ * 处理导出文章
+ * @param post - 要导出的博文对象
+ * @param format - 导出格式 ('md', 'docx', 'pdf', 'txt')
+ */
+const handleExportPost = async (post: Post, format: 'md' | 'docx' | 'pdf' | 'txt') => {
+  try {
+    switch (format) {
+      case 'md':
+        exportAsText(post, 'md');
+        break;
+      case 'txt': // 新增 TXT 导出逻辑
+        exportAsText(post, 'txt');
+        break;
+      case 'docx':
+        await exportAsDocx(post);
+        break;
+      case 'pdf':
+        exportAsPdf(post);
+        break;
+      default:
+        ElMessage.warning('不支持的导出格式');
+        return;
+    }
+    ElMessage.success(`博文《${post.title}》已导出为 ${format.toUpperCase()} 格式`);
+  } catch (error) {
+    console.error('导出失败:', error);
+    ElMessage.error('导出失败，请稍后再试');
   }
 };
 
