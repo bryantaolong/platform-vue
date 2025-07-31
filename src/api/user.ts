@@ -1,108 +1,141 @@
 // src/api/user.ts
 import request from '@/utils/request';
-import type { Result } from '@/models/response/Result';
 import type { User } from '@/models/entity/User';
-import type { UserUpdateRequest } from '@/models/request/user/UserUpdateRequest.ts';
-import type { ChangePasswordRequest } from '@/models/request/user/ChangePasswordRequest.ts';
-import type {MyBatisPlusPageResult} from "@/models/response/MyBatisPlusPageResult.ts";
+import type { Result } from '@/models/response/Result';
+import type {MyBatisPlusPageResult} from '@/models/response/MyBatisPlusPageResult';
+import type { UserSearchRequest } from '@/models/request/user/UserSearchRequest';
+import type { PageRequest } from '@/models/request/PageRequest';
 
 /**
- * 用户相关的 RESTful API 请求模块
+ * 获取所有用户列表（不分页）
  */
-
-/**
- * 获取所有用户列表（支持分页和搜索）
- * 后端 getAllUsers() 返回的是 Result<Page<User>>
- * @param params 分页和搜索参数 { page: number, size: number, username?: string, email?: string, status?: number }
- */
-export function getAllUsers(params?: {
-    page?: number;
-    size?: number;
-    username?: string;
-    email?: string;
-    status?: number;
-}): Promise<Result<MyBatisPlusPageResult<User>>> {
+export function getAllUsers(): Promise<Result<User[]>> {
     return request({
         url: '/api/user/all',
-        method: 'get',
-        params, // 将分页和搜索参数作为查询参数发送
+        method: 'get'
     });
 }
 
 /**
- * 根据用户 ID 获取用户信息。
- * @param userId 用户 ID
+ * 根据用户ID获取用户信息
+ * @param id 用户ID
  */
-export function getUserById(userId: number): Promise<Result<User>> {
+export function getUserById(id: number): Promise<Result<User>> {
     return request({
-        url: `/api/user/${userId}`,
-        method: 'get',
+        url: `/api/user/${id}`,
+        method: 'get'
     });
 }
 
 /**
- * 根据用户名获取用户信息。
+ * 根据用户名获取用户信息
  * @param username 用户名
  */
 export function getUserByUsername(username: string): Promise<Result<User>> {
     return request({
         url: `/api/user/username/${username}`,
-        method: 'get',
+        method: 'get'
     });
 }
 
 /**
- * 更新用户基本信息。
- * @param userId 要更新的用户 ID
- * @param data 包含需要更新的用户信息（username, email）
+ * 多条件搜索用户，带分页
+ * @param search 查询条件
+ * @param page 分页参数
  */
-export function updateUser(userId: number, data: UserUpdateRequest): Promise<Result<User>> {
+export function searchUsers(
+    search: UserSearchRequest,
+    page: PageRequest
+): Promise<Result<MyBatisPlusPageResult<User>>> {
     return request({
-        url: `/api/user/${userId}`,
+        url: '/api/user/search',
+        method: 'post',
+        data: search,
+        params: page
+    });
+}
+
+/**
+ * 更新用户信息
+ * @param id 用户ID
+ * @param data 用户对象
+ */
+export function updateUser(id: number, data: User): Promise<Result<User>> {
+    return request({
+        url: `/api/user/${id}`,
         method: 'put',
-        data,
+        data
     });
 }
 
 /**
- * 更改用户角色。
- * @param userId 要更改角色的用户 ID
- * @param roles 新的角色字符串，多个角色以逗号分隔（例如 "ROLE_USER,ROLE_ADMIN"）
+ * 修改用户角色
+ * @param id 用户ID
+ * @param roles 角色数组
  */
-export function changeRole(userId: number, roles: string): Promise<Result<User>> {
+export function updateUserRole(id: number, roles: string[]): Promise<Result<User>> {
     return request({
-        url: `/api/user/${userId}/role`,
+        url: `/api/user/${id}/role`,
         method: 'put',
-        // 注意：后端接收的是 String 类型的 @RequestBody，前端需要以纯文本或 application/json 形式发送
-        // request 工具函数通常会处理为 application/json，所以直接传字符串即可
-        data: roles,
-        headers: {
-            'Content-Type': 'text/plain' // 明确告诉后端这是纯文本，如果后端是 @RequestBody String
-                                         // 如果后端希望是 JSON 字符串，则不需要此头，直接传 `"rolesString"`
-        }
+        data: roles
     });
 }
 
 /**
- * 更改用户密码。
- * @param userId 要更改密码的用户 ID
- * @param data 包含旧密码和新密码的数据传输对象
+ * 修改用户密码
+ * @param id 用户ID
+ * @param password 密码
  */
-export function changePassword(userId: number, data: ChangePasswordRequest): Promise<Result<User>> {
+export function changePassword(id: number, password: string): Promise<Result<User>> {
     return request({
-        url: `/api/user/${userId}/password`,
+        url: `/api/user/${id}/password`,
         method: 'put',
-        data,
+        data: password
     });
 }
 
 /**
- * 删除用户（逻辑删除）。
- * @param userId 要删除的用户 ID
+ * 管理员强制修改用户密码
+ * @param id 用户ID
+ * @param newPassword 新密码
  */
-export function deleteUser(userId: number): Promise<Result<User>> {
+export function changePasswordForce(id: number, newPassword: string): Promise<Result<User>> {
     return request({
-        url: `/api/user/${userId}`,
-        method: 'delete',
+        url: `/api/user/${id}/password/force/${newPassword}`,
+        method: 'put'
     });
 }
+
+/**
+ * 封禁用户
+ * @param id 用户ID
+ */
+export function blockUser(id: number): Promise<Result<User>> {
+    return request({
+        url: `/api/user/${id}/block`,
+        method: 'put'
+    });
+}
+
+/**
+ * 解封用户
+ * @param id 用户ID
+ */
+export function unblockUser(id: number): Promise<Result<User>> {
+    return request({
+        url: `/api/user/${id}/unblock`,
+        method: 'put'
+    });
+}
+
+/**
+ * 删除用户（逻辑删除）
+ * @param id 用户ID
+ */
+export function deleteUser(id: number): Promise<Result<User>> {
+    return request({
+        url: `/api/user/${id}`,
+        method: 'delete'
+    });
+}
+
