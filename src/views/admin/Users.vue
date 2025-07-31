@@ -124,6 +124,7 @@ import { ElMessage, ElMessageBox } from 'element-plus';
 import { useRouter } from 'vue-router'; // 引入 useRouter
 import { useUserStore } from '@/stores/user';
 import * as userService from '@/api/user';
+import * as userExportService from '@/api/userExport';
 import type { User } from '@/models/entity/User';
 
 // 导入拆分后的组件
@@ -297,7 +298,7 @@ const handleExportAllUsers = async () => {
     });
     const fileName = result.value || '所有用户数据';
 
-    await userService.exportAllUsers(fileName, searchForm.status); // 可以根据搜索条件导出
+    await userExportService.exportAllUsers(fileName, searchForm.status); // 可以根据搜索条件导出
     ElMessage.success('所有用户数据已开始导出！');
   } catch (error: any) {
     if (error !== 'cancel') {
