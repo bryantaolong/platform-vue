@@ -5,14 +5,16 @@ import type { Result } from '@/models/response/Result';
 import type {MyBatisPlusPageResult} from '@/models/response/MyBatisPlusPageResult';
 import type { UserSearchRequest } from '@/models/request/user/UserSearchRequest';
 import type { PageRequest } from '@/models/request/PageRequest';
+import type {UserUpdateRequest} from "@/models/request/user/UserUpdateRequest.ts";
 
 /**
  * 获取所有用户列表（不分页）
  */
-export function getAllUsers(): Promise<Result<User[]>> {
+export function getAllUsers(pageRequest: PageRequest): Promise<Result<MyBatisPlusPageResult<User>>> {
     return request({
         url: '/api/user/all',
-        method: 'get'
+        method: 'post',
+        data: pageRequest,
     });
 }
 
@@ -60,7 +62,7 @@ export function searchUsers(
  * @param id 用户ID
  * @param data 用户对象
  */
-export function updateUser(id: number, data: User): Promise<Result<User>> {
+export function updateUser(id: number, data: UserUpdateRequest): Promise<Result<User>> {
     return request({
         url: `/api/user/${id}`,
         method: 'put',
@@ -99,7 +101,7 @@ export function changePassword(id: number, password: string): Promise<Result<Use
  * @param id 用户ID
  * @param newPassword 新密码
  */
-export function changePasswordForce(id: number, newPassword: string): Promise<Result<User>> {
+export function changePasswordForcefully(id: number, newPassword: string): Promise<Result<User>> {
     return request({
         url: `/api/user/${id}/password/force/${newPassword}`,
         method: 'put'

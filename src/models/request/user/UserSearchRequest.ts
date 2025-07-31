@@ -3,33 +3,33 @@
  * @description 定义搜索用户请求的数据结构。
  */
 export interface UserSearchRequest {
-    username: string;
+    username?: string;
 
-    phoneNumber: string;
+    phoneNumber?: string;
 
-    email: string;
+    email?: string;
 
-    gender: string;
+    gender?: number;
 
-    status: string;
+    status?: number;
 
-    roles: string;
+    roles?: string;
 
-    loginTime: string;
+    loginTime?: string;
 
-    loginIp: string;
+    loginIp?: string;
 
-    passwordResetTime: string;
+    passwordResetTime?: string;
 
-    createTime: string;
+    createTime?: string;
 
-    createTimeStart: string;
+    createTimeStart?: string;
 
-    createTimeEnd: string;
+    createTimeEnd?: string;
 
-    updateTime: string;
+    updateTime?: string;
 
-    updateTimeStart: string;
+    updateTimeStart?: string;
 
-    updateTimeEnd: string;
+    updateTimeEnd?: string;
 }

@@ -10,128 +10,82 @@
         </div>
       </template>
 
-      <el-form :inline="true" :model="searchForm" class="search-form">
-        <el-form-item label="用户名">
-          <el-input v-model="searchForm.username" placeholder="输入用户名"></el-input>
-        </el-form-item>
-        <el-form-item label="邮箱">
-          <el-input v-model="searchForm.email" placeholder="输入邮箱"></el-input>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select v-model="searchForm.status" placeholder="选择状态" clearable>
-            <el-option label="正常" :value="0"></el-option>
-            <el-option label="封禁" :value="1"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="searchUsers">查询</el-button>
-          <el-button @click="resetSearch">重置</el-button>
-        </el-form-item>
-      </el-form>
+      <UserSearchForm
+          v-model="searchForm"
+          @search="searchUsers"
+          @reset="resetSearch"
+      />
 
-      <el-table :data="userList" v-loading="loading" style="width: 100%" border>
-        <el-table-column prop="id" label="ID" width="80"></el-table-column>
-        <el-table-column prop="username" label="用户名"></el-table-column>
-        <el-table-column prop="email" label="邮箱"></el-table-column>
-        <el-table-column label="角色">
-          <template #default="scope">
-            <el-tag
-              v-for="role in scope.row.roles.split(',')"
-              :key="role"
-              size="small"
-              type="info"
-              style="margin-right: 5px;"
-            >
-              {{ getRoleDisplayName(role) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" width="100">
-          <template #default="scope">
-            <el-tag :type="scope.row.status === 0 ? 'success' : 'danger'">
-              {{ scope.row.status === 0 ? '正常' : '封禁' }}
-            </el-tag>
-          </template>
-        </el-table-column>
-        <el-table-column prop="createTime" label="创建时间" width="180">
-          <template #default="scope">
-            {{ formatDateTime(scope.row.createTime) }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="updateTime" label="更新时间" width="180">
-          <template #default="scope">
-            {{ formatDateTime(scope.row.updateTime) }}
-          </template>
-        </el-table-column>
-        <el-table-column label="操作" width="280">
-          <template #default="scope">
-            <el-button link type="primary" size="small" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button link type="warning" size="small" @click="handleChangeRole(scope.row)">改角色</el-button>
-            <el-button link type="info" size="small" @click="handleChangePassword(scope.row)">改密码</el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <el-pagination
-        v-model:current-page="currentPage"
-        v-model:page-size="pageSize"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="totalUsers"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        class="pagination-container"
+      <UserTable
+          :userList="userList"
+          :loading="loading"
+          @edit="handleEdit"
+          @change-role="handleChangeRole"
+          @change-password="handleChangePassword"
+          @delete="handleDelete"
       />
     </el-card>
 
+      <el-pagination
+          v-model:current-page="currentPage"
+          v-model:page-size="pageSize"
+          :page-sizes="[10, 20, 50, 100]"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="totalUsers"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          class="pagination-container"
+      />
+
     <!-- 编辑用户弹窗组件 -->
     <EditUserDialog
-      :visible="showEditDialog"
-      :user-data="currentOperateUser"
-      @update:visible="showEditDialog = $event"
-      @userUpdated="fetchUserList"
+        :visible="showEditDialog"
+        :user-data="currentOperateUser"
+        @update:visible="showEditDialog = $event"
+        @userUpdated="fetchUserList"
     />
 
     <!-- 更改角色弹窗组件 -->
     <ChangeRoleDialog
-      :visible="showChangeRoleDialog"
-      :user-data="currentOperateUser"
-      @update:visible="showChangeRoleDialog = $event"
-      @roleChanged="fetchUserList"
+        :visible="showChangeRoleDialog"
+        :user-data="currentOperateUser"
+        @update:visible="showChangeRoleDialog = $event"
+        @roleChanged="fetchUserList"
     />
 
     <!-- 管理员更改密码弹窗组件 -->
-    <ChangePasswordDialog
-      :visible="showChangePasswordDialog"
-      :user-data="currentOperateUser"
-      @update:visible="showChangePasswordDialog = $event"
-      @passwordChanged="fetchUserList"
+    <ChangePasswordForcefullyDialog
+        :visible="showChangePasswordDialog"
+        :user-data="currentOperateUser"
+        @update:visible="showChangePasswordDialog = $event"
+        @passwordChanged="fetchUserList"
     />
 
     <!-- 导出用户弹窗组件 -->
     <ExportUsersDialog
-      :visible="showExportDialog"
-      @update:visible="showExportDialog = $event"
-      @exported="handleExported"
+        :visible="showExportDialog"
+        @update:visible="showExportDialog = $event"
+        @exported="handleExported"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { useRouter } from 'vue-router'; // 引入 useRouter
+import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import * as userService from '@/api/user';
 import * as userExportService from '@/api/userExport';
 import type { User } from '@/models/entity/User';
-
-// 导入拆分后的组件
+import type { UserSearchRequest } from '@/models/request/user/UserSearchRequest';
 import EditUserDialog from '@/components/user/operations/EditUserDialog.vue';
 import ChangeRoleDialog from '@/components/user/operations/admin/ChangeRoleDialog.vue';
-import ChangePasswordDialog from '@/components/user/operations/ChangePasswordDialog.vue';
+import ChangePasswordForcefullyDialog from '@/components/user/operations/admin/ChangePasswordForcefullyDialog.vue';
 import ExportUsersDialog from '@/components/user/operations/admin/ExportUsersDialog.vue';
+import type {PageRequest} from "@/models/request/PageRequest.ts";
+import UserTable from "@/components/user/operations/admin/UserTable.vue";
+import UserSearchForm from "@/components/user/operations/admin/UserSearchForm.vue";
 
 const userStore = useUserStore();
 const router = useRouter(); // 获取 router 实例
@@ -143,10 +97,22 @@ const pageSize = ref(10);
 const totalUsers = ref(0);
 
 // 搜索表单
-const searchForm = reactive({
-  username: '',
-  email: '',
-  status: null as number | null,
+const searchForm = ref<UserSearchRequest>({
+  username: undefined,
+  phoneNumber: undefined,
+  email: undefined,
+  gender: undefined,
+  status: undefined,
+  roles: undefined,
+  loginTime: undefined,
+  loginIp: undefined,
+  passwordResetTime: undefined,
+  createTime: undefined,
+  createTimeStart: undefined,
+  createTimeEnd: undefined,
+  updateTime: undefined,
+  updateTimeStart: undefined,
+  updateTimeEnd: undefined,
 });
 
 // 管理员权限判断
@@ -166,64 +132,78 @@ const showExportDialog = ref(false);
 // 用于传递给子组件的当前操作用户数据
 const currentOperateUser = ref<User | null>(null);
 
-// 格式化日期时间的辅助函数
-const formatDateTime = (dateTimeString: string): string => {
-  if (!dateTimeString) return '';
-  const date = new Date(dateTimeString);
-  return date.toLocaleString();
-};
-
-// 获取角色显示名称
-const getRoleDisplayName = (role: string): string => {
-  switch (role) {
-    case 'ROLE_ADMIN': return '管理员';
-    case 'ROLE_USER': return '普通用户';
-    default: return role;
-  }
-};
-
 // --- API 调用函数 ---
 
-// 获取用户列表
+// 获取全部用户列表（无分页）
 const fetchUserList = async () => {
   loading.value = true;
   try {
-    const params = {
-      page: currentPage.value - 1, // 后端分页通常从0开始
-      size: pageSize.value,
-      username: searchForm.username || undefined,
-      email: searchForm.email || undefined,
-      status: searchForm.status ?? undefined,
-    };
-    const res = await userService.getAllUsers(params);
-    if (res.code === 200 && res.data) {
+    const res = await userService.getAllUsers({
+      pageNum: 1,
+      pageSize: 9999, // 设置一个足够大的分页参数获取全部
+    });
+
+    if (res.code === 200 && res.data?.records) {
       userList.value = res.data.records;
       totalUsers.value = res.data.total;
     } else {
-      ElMessage.error(res?.message || '获取用户列表失败！');
+      ElMessage.error(res?.message || '获取全部用户失败');
     }
-  } catch (error: any) {
-    console.error('获取用户列表失败:', error);
-    ElMessage.error('网络错误，无法获取用户列表！');
+  } catch (error) {
+    ElMessage.error('网络错误，无法获取用户列表');
   } finally {
     loading.value = false;
   }
 };
 
-// 搜索用户
-const searchUsers = () => {
+// 分页+条件搜索用户
+const searchUsers = async () => {
+  loading.value = true;
+  try {
+    const pageParams: PageRequest = {
+      pageNum: currentPage.value - 1,
+      pageSize: pageSize.value,
+    };
+
+    // 使用完整的 searchForm.value 传给接口
+    const res = await userService.searchUsers(searchForm.value, pageParams);
+    if (res.code === 200 && res.data) {
+      userList.value = res.data.records;
+      totalUsers.value = res.data.total;
+    } else {
+      ElMessage.error(res?.message || '搜索用户失败');
+    }
+  } catch (error) {
+    ElMessage.error('网络错误，无法搜索用户');
+  } finally {
+    loading.value = false;
+  }
+};
+
+
+// 重置搜索
+const resetSearch = () => {
+  searchForm.value = {
+    username: undefined,
+    phoneNumber: undefined,
+    email: undefined,
+    gender: undefined,
+    status: undefined,
+    roles: undefined,
+    loginTime: undefined,
+    loginIp: undefined,
+    passwordResetTime: undefined,
+    createTime: undefined,
+    createTimeStart: undefined,
+    createTimeEnd: undefined,
+    updateTime: undefined,
+    updateTimeStart: undefined,
+    updateTimeEnd: undefined,
+  };
   currentPage.value = 1;
   fetchUserList();
 };
 
-// 重置搜索
-const resetSearch = () => {
-  searchForm.username = '';
-  searchForm.email = '';
-  searchForm.status = null;
-  currentPage.value = 1;
-  fetchUserList();
-};
 
 // 处理分页大小变化
 const handleSizeChange = (val: number) => {
@@ -241,7 +221,7 @@ const handleCurrentChange = (val: number) => {
 
 // 编辑用户
 const handleEdit = (user: User) => {
-  currentOperateUser.value = { ...user }; // 复制一份用户数据传递，避免直接修改
+  currentOperateUser.value = { ...user }; // 复制一份，避免直接修改
   showEditDialog.value = true;
 };
 
@@ -290,15 +270,15 @@ const handleDelete = async (user: User) => {
 const handleExportAllUsers = async () => {
   try {
     const result = await ElMessageBox.prompt('请输入导出文件名:', '导出所有用户', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputValue: '所有用户数据',
-        inputPattern: /.+/,
-        inputErrorMessage: '文件名不能为空',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputValue: '所有用户数据',
+      inputPattern: /.+/,
+      inputErrorMessage: '文件名不能为空',
     });
     const fileName = result.value || '所有用户数据';
 
-    await userExportService.exportAllUsers(fileName, searchForm.status); // 可以根据搜索条件导出
+    await userExportService.exportAllUsers(fileName, searchForm.value.status); // 可以根据搜索条件导出
     ElMessage.success('所有用户数据已开始导出！');
   } catch (error: any) {
     if (error !== 'cancel') {
@@ -310,7 +290,6 @@ const handleExportAllUsers = async () => {
 
 // 导出弹窗关闭或导出成功后的回调
 const handleExported = () => {
-  // 可以根据需要执行一些操作，例如刷新列表等
   console.log('用户数据导出操作完成。');
 };
 
