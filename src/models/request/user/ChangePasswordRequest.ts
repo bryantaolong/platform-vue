@@ -1,5 +1,5 @@
 /**
- * @module models/ChangePasswordRequest
+ * @module src/models/request/user/ChangePasswordRequest
  * @description 定义用户修改密码请求的数据结构。
  */
 export interface ChangePasswordRequest {

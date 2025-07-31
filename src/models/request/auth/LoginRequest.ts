@@ -1,5 +1,5 @@
 /**
- * @module models/request/LoginRequest
+ * @module src/models/request/auth/LoginRequest
  * @description 定义用户登录请求的数据结构。
  */
 export interface LoginRequest {

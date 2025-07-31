@@ -20,6 +20,12 @@ export interface RegisterRequest {
     password: string;
 
     /**
+     * 电话号码
+     * @TJS-type string
+     */
+    phoneNumber: string;
+
+    /**
      * 邮箱地址
      * @TJS-type string
      * @TJS-format email
