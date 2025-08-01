@@ -6,6 +6,4 @@ export interface UserUpdateRequest {
     username?: string; // 可选
     phoneNumber?: string;
     email?: string; // 可选
-    gender?: number; //可选
-    avatar?: string; //可选
 }

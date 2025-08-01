@@ -11,16 +11,16 @@
       <el-form-item label="手机号" prop="phoneNumber">
         <el-input v-model="currentEditUser.phoneNumber" />
       </el-form-item>
-      <el-form-item label="性别" prop="gender">
-        <el-select v-model="currentEditUser.gender" placeholder="请选择性别">
-          <el-option label="男" :value="1" />
-          <el-option label="女" :value="2" />
-          <el-option label="保密" :value="0" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="头像" prop="avatar">
-        <el-input v-model="currentEditUser.avatar" placeholder="头像 URL" />
-      </el-form-item>
+<!--      <el-form-item label="性别" prop="gender">-->
+<!--        <el-select v-model="currentEditUser.gender" placeholder="请选择性别">-->
+<!--          <el-option label="男" :value="1" />-->
+<!--          <el-option label="女" :value="2" />-->
+<!--          <el-option label="保密" :value="0" />-->
+<!--        </el-select>-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="头像" prop="avatar">-->
+<!--        <el-input v-model="currentEditUser.avatar" placeholder="头像 URL" />-->
+<!--      </el-form-item>-->
     </el-form>
     <template #footer>
       <el-button @click="dialogVisible = false">取消</el-button>
@@ -56,8 +56,6 @@ const currentEditUser = reactive<UserUpdateRequest & { id?: number | null }>({
   username: '',
   email: '',
   phoneNumber: '',
-  gender: 0,
-  avatar: ''
 });
 
 // 校验规则
@@ -78,8 +76,8 @@ watch(() => props.visible, (newVal) => {
       username: props.userData.username,
       email: props.userData.email,
       phoneNumber: props.userData.phoneNumber,
-      gender: props.userData.gender,
-      avatar: props.userData.avatar
+      // gender: props.userData.gender,
+      // avatar: props.userData.avatar
     });
     editUserFormRef.value?.clearValidate();
   } else if (newVal) {
@@ -105,8 +103,8 @@ const submitForm = async () => {
           username: currentEditUser.username,
           email: currentEditUser.email,
           phoneNumber: currentEditUser.phoneNumber,
-          gender: currentEditUser.gender,
-          avatar: currentEditUser.avatar
+          // gender: currentEditUser.gender,
+          // avatar: currentEditUser.avatar
         });
         ElMessage.success('用户信息更新成功');
         dialogVisible.value = false;
