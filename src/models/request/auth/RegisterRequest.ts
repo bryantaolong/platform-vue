@@ -23,7 +23,7 @@ export interface RegisterRequest {
      * 电话号码
      * @TJS-type string
      */
-    phoneNumber: string;
+    phone: string;
 
     /**
      * 邮箱地址

@@ -7,7 +7,7 @@
       <el-input v-model="localSearchForm.email" placeholder="输入邮箱" clearable></el-input>
     </el-form-item>
     <el-form-item label="手机号">
-      <el-input v-model="localSearchForm.phoneNumber" placeholder="输入手机号" clearable></el-input>
+      <el-input v-model="localSearchForm.phone" placeholder="输入手机号" clearable></el-input>
     </el-form-item>
 
     <el-form-item label="状态">
@@ -23,7 +23,7 @@
     </el-form-item>
 
     <el-form-item label="登录IP">
-      <el-input v-model="localSearchForm.loginIp" placeholder="输入登录IP" clearable></el-input>
+      <el-input v-model="localSearchForm.lastLoginIp" placeholder="输入登录IP" clearable></el-input>
     </el-form-item>
 
     <el-form-item label="登录失败次数">
@@ -45,7 +45,7 @@
 
     <el-form-item label="登录时间">
       <el-date-picker
-          v-model="localSearchForm.loginTime"
+          v-model="localSearchForm.lastLoginAt"
           type="datetime"
           placeholder="选择登录时间"
           format="YYYY-MM-DD HH:mm:ss"
@@ -56,7 +56,7 @@
 
     <el-form-item label="密码重置时间">
       <el-date-picker
-          v-model="localSearchForm.passwordResetTime"
+          v-model="localSearchForm.passwordResetAt"
           type="datetime"
           placeholder="选择密码重置时间"
           format="YYYY-MM-DD HH:mm:ss"
@@ -67,7 +67,7 @@
 
     <el-form-item label="账户锁定时间">
       <el-date-picker
-          v-model="localSearchForm.accountLockTime"
+          v-model="localSearchForm.lockedAt"
           type="datetime"
           placeholder="选择锁定时间"
           format="YYYY-MM-DD HH:mm:ss"
@@ -117,11 +117,11 @@
     </el-form-item>
 
     <el-form-item label="创建人">
-      <el-input v-model="localSearchForm.createBy" placeholder="输入创建人" clearable></el-input>
+      <el-input v-model="localSearchForm.createdBy" placeholder="输入创建人" clearable></el-input>
     </el-form-item>
 
     <el-form-item label="更新人">
-      <el-input v-model="localSearchForm.updateBy" placeholder="输入更新人" clearable></el-input>
+      <el-input v-model="localSearchForm.updatedBy" placeholder="输入更新人" clearable></el-input>
     </el-form-item>
 
     <el-form-item>
@@ -153,25 +153,25 @@ const showAdvanced = ref(false);
 // 复制传入的 searchRequest 到局部 reactive 对象
 const localSearchForm = reactive<UserSearchRequest>({
   username: '',
-  phoneNumber: '',
+  phone: '',
   email: '',
   status: undefined,
   roles: undefined,
-  loginTime: undefined,
-  loginIp: undefined,
-  passwordResetTime: undefined,
+  lastLoginAt: undefined,
+  lastLoginIp: undefined,
+  passwordResetAt: undefined,
   loginFailCount: undefined,
-  accountLockTime: undefined,
+  lockedAt: undefined,
   deleted: undefined,
   version: undefined,
-  createTime: undefined,
+  createdAt: undefined,
   createTimeStart: undefined,
   createTimeEnd: undefined,
-  updateTime: undefined,
+  updatedAt: undefined,
   updateTimeStart: undefined,
   updateTimeEnd: undefined,
-  createBy: undefined,
-  updateBy: undefined,
+  createdBy: undefined,
+  updatedBy: undefined,
   ...props.modelValue,
 });
 

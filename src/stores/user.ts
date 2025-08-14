@@ -4,7 +4,6 @@ import type { LoginRequest } from '@/models/request/auth/LoginRequest.ts'
 import type { RegisterRequest } from '@/models/request/auth/RegisterRequest.ts'
 import type { Result } from '@/models/response/Result'
 import type { User } from '@/models/entity/User'
-// import {initWebSocket} from "@/utils/websocket.ts"; // 用户实体类型
 
 export const useUserStore = defineStore('user', {
   state: () => ({
@@ -33,8 +32,7 @@ export const useUserStore = defineStore('user', {
       // login 函数现在明确返回 ApiResponse<LoginResponseData> 类型
       const res = await login(form)
       if (res.code === 200) {
-        // res.data 现在被明确为 LoginResponseData (即 string)，所以可以访问其属性
-        this.token = res.data // 直接赋值，因为 res.data 就是 token 字符串
+        this.token = res.data
         localStorage.setItem('token', res.data)
         await this.fetchUserInfo()
       }
@@ -47,7 +45,7 @@ export const useUserStore = defineStore('user', {
      * @returns 包含注册结果的 Result (data为User实体)
      */
     async register(form: RegisterRequest): Promise<Result<User>> {
-      // register 函数明确返回 ApiResponse<User> 类型
+      // register 函数明确返回 Result<User> 类型
       return await register(form)
     },
 
@@ -60,7 +58,6 @@ export const useUserStore = defineStore('user', {
       const res = await getCurrentUser()
       if (res.code === 200) {
         this.userInfo = res.data // res.data 现在被明确为 User 类型
-        // initWebSocket(); // ⬅️ 添加这里
       }
       return res // 返回 res 方便调用者处理
     },

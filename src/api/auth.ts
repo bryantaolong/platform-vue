@@ -54,3 +54,10 @@ export function validateToken(token: string): Promise<Result<string>> { // éªŒè¯
         params: { token },
     });
 }
+
+export function logout(): Promise<boolean> {
+    return request({
+        url: '/api/auth/logout',
+        method: 'get'
+    });
+}

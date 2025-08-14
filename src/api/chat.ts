@@ -1,4 +1,4 @@
-// src/api/aiChat.ts
+// src/api/chat.ts
 import request from '@/utils/request';
 import type { Result } from '@/models/response/Result';
 

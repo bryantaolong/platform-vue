@@ -4,6 +4,6 @@
  */
 export interface UserUpdateRequest {
     username?: string; // 可选
-    phoneNumber?: string;
+    phone?: string;
     email?: string; // 可选
 }

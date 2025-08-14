@@ -6,6 +6,8 @@ import type {MyBatisPlusPageResult} from '@/models/response/MyBatisPlusPageResul
 import type { UserSearchRequest } from '@/models/request/user/UserSearchRequest';
 import type { PageRequest } from '@/models/request/PageRequest';
 import type {UserUpdateRequest} from "@/models/request/user/UserUpdateRequest.ts";
+import type {ChangePasswordRequest} from "@/models/request/user/ChangePasswordRequest.ts";
+import type {ChangeRoleRequest} from "@/models/request/user/ChangeRoleRequest.ts";
 
 /**
  * 获取所有用户列表（不分页）
@@ -73,26 +75,27 @@ export function updateUser(id: number, data: UserUpdateRequest): Promise<Result<
 /**
  * 修改用户角色
  * @param id 用户ID
- * @param roles 角色数组
+ * @param roleIds 角色ID数组
  */
-export function updateUserRole(id: number, roles: string[]): Promise<Result<User>> {
+export function updateUserRole(id: number, roleIds: number[]): Promise<Result<User>> {
     return request({
-        url: `/api/user/${id}/role`,
+        url: `/api/user/users/${id}/roles`,
         method: 'put',
-        data: roles
+        data: { roleIds } as ChangeRoleRequest
     });
 }
 
 /**
  * 修改用户密码
  * @param id 用户ID
- * @param password 密码
+ * @param oldPassword
+ * @param newPassword
  */
-export function changePassword(id: number, password: string): Promise<Result<User>> {
+export function changePassword(id: number, oldPassword: string, newPassword: string): Promise<Result<User>> {
     return request({
         url: `/api/user/${id}/password`,
         method: 'put',
-        data: password
+        data: { oldPassword, newPassword } as ChangePasswordRequest
     });
 }
 
@@ -140,4 +143,3 @@ export function deleteUser(id: number): Promise<Result<User>> {
         method: 'delete'
     });
 }
-

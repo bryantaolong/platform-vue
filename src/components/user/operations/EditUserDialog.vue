@@ -9,7 +9,7 @@
         <el-input v-model="currentEditUser.email" />
       </el-form-item>
       <el-form-item label="手机号" prop="phoneNumber">
-        <el-input v-model="currentEditUser.phoneNumber" />
+        <el-input v-model="currentEditUser.phone" />
       </el-form-item>
 <!--      <el-form-item label="性别" prop="gender">-->
 <!--        <el-select v-model="currentEditUser.gender" placeholder="请选择性别">-->
@@ -55,7 +55,7 @@ const currentEditUser = reactive<UserUpdateRequest & { id?: number | null }>({
   id: null,
   username: '',
   email: '',
-  phoneNumber: '',
+  phone: '',
 });
 
 // 校验规则
@@ -75,7 +75,7 @@ watch(() => props.visible, (newVal) => {
       id: props.userData.id,
       username: props.userData.username,
       email: props.userData.email,
-      phoneNumber: props.userData.phoneNumber,
+      phoneNumber: props.userData.phone,
       // gender: props.userData.gender,
       // avatar: props.userData.avatar
     });
@@ -85,8 +85,7 @@ watch(() => props.visible, (newVal) => {
       id: null,
       username: '',
       email: '',
-      phoneNumber: '',
-      gender: 0,
+      phone: '',
       avatar: ''
     });
     editUserFormRef.value?.resetFields();
@@ -102,7 +101,7 @@ const submitForm = async () => {
         await updateUser(currentEditUser.id!, {
           username: currentEditUser.username,
           email: currentEditUser.email,
-          phoneNumber: currentEditUser.phoneNumber,
+          phone: currentEditUser.phone,
           // gender: currentEditUser.gender,
           // avatar: currentEditUser.avatar
         });

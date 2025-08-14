@@ -4,23 +4,23 @@
  */
 export interface UserSearchRequest {
     username?: string;
-    phoneNumber?: string;
+    phone?: string;
     email?: string;
     status?: number;
     roles?: string;
-    loginTime?: string;
-    loginIp?: string;
-    passwordResetTime?: string;      // 密码重置时间
+    lastLoginAt?: string;
+    lastLoginIp?: string;
+    passwordResetAt?: string;        // 密码重置时间
     loginFailCount?: number;         // 登录失败次数
-    accountLockTime?: string;        // 账号锁定时间
+    lockedAt?: string;               // 账号锁定时间
     deleted?: number;                // 逻辑删除标志
     version?: number;                // 乐观锁版本号
-    createTime?: string;
+    createdAt?: string;
     createTimeStart?: string;
     createTimeEnd?: string;
-    createBy?: string;
-    updateTime?: string;
+    updatedAt?: string;
     updateTimeStart?: string;
     updateTimeEnd?: string;
-    updateBy?: string;
+    createdBy?: string;
+    updatedBy?: string;
 }

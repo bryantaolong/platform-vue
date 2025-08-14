@@ -33,7 +33,7 @@
 import { ref } from 'vue';
 import { marked } from 'marked';
 import { ElMessage, ElMessageBox } from 'element-plus';
-import { sendChatMessage, clearChatContext } from '@/api/aiChat';
+import { sendChatMessage, clearChatContext } from '@/api/chat.ts';
 
 const visible = ref(false);
 const userMessage = ref('');
