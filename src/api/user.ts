@@ -2,7 +2,7 @@
 import request from '@/utils/request';
 import type { User } from '@/models/entity/User';
 import type { Result } from '@/models/response/Result';
-import type {MyBatisPlusPageResult} from '@/models/response/MyBatisPlusPageResult';
+import type {MyBatisPageResult} from '@/models/response/MyBatisPageResult.ts';
 import type { UserSearchRequest } from '@/models/request/user/UserSearchRequest';
 import type { PageRequest } from '@/models/request/PageRequest';
 import type {UserUpdateRequest} from "@/models/request/user/UserUpdateRequest.ts";
@@ -12,7 +12,7 @@ import type {ChangeRoleRequest} from "@/models/request/user/ChangeRoleRequest.ts
 /**
  * 获取所有用户列表（不分页）
  */
-export function getAllUsers(pageRequest: PageRequest): Promise<Result<MyBatisPlusPageResult<User>>> {
+export function getAllUsers(pageRequest: PageRequest): Promise<Result<MyBatisPageResult<User>>> {
     return request({
         url: '/api/user/all',
         method: 'post',
@@ -50,7 +50,7 @@ export function getUserByUsername(username: string): Promise<Result<User>> {
 export function searchUsers(
     search: UserSearchRequest,
     page: PageRequest
-): Promise<Result<MyBatisPlusPageResult<User>>> {
+): Promise<Result<MyBatisPageResult<User>>> {
     return request({
         url: '/api/user/search',
         method: 'post',

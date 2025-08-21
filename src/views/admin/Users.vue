@@ -49,6 +49,7 @@
     <ChangeRoleDialog
         :visible="showChangeRoleDialog"
         :user-data="currentOperateUser"
+        :user-role-ids="currentOperateUser?.rolesIdList ?? []"
         @update:visible="showChangeRoleDialog = $event"
         @roleChanged="fetchUserList"
     />
@@ -77,18 +78,21 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import * as userService from '@/api/user';
 import * as userExportService from '@/api/userExport';
+import { listAllRoles, type RoleOptionDTO } from '@/api/userRole';
 import type { User } from '@/models/entity/User';
 import type { UserSearchRequest } from '@/models/request/user/UserSearchRequest';
+import type { PageRequest } from '@/models/request/PageRequest';
+
 import EditUserDialog from '@/components/user/operations/EditUserDialog.vue';
 import ChangeRoleDialog from '@/components/user/operations/admin/ChangeRoleDialog.vue';
 import ChangePasswordForcefullyDialog from '@/components/user/operations/admin/ChangePasswordForcefullyDialog.vue';
 import ExportUsersDialog from '@/components/user/operations/admin/ExportUsersDialog.vue';
-import type {PageRequest} from "@/models/request/PageRequest.ts";
-import UserTable from "@/components/user/operations/admin/UserTable.vue";
-import UserSearchForm from "@/components/user/operations/admin/UserSearchForm.vue";
+import UserTable from '@/components/user/operations/admin/UserTable.vue';
+import UserSearchForm from '@/components/user/operations/admin/UserSearchForm.vue';
 
+/* ----------------- 基础数据 ----------------- */
 const userStore = useUserStore();
-const router = useRouter(); // 获取 router 实例
+const router = useRouter();
 
 const loading = ref(false);
 const userList = ref<User[]>([]);
@@ -126,28 +130,50 @@ const isAdmin = computed(() => {
   return false;
 });
 
-// 控制弹窗显示状态
+/* ----------------- 弹窗控制 ----------------- */
 const showEditDialog = ref(false);
 const showChangeRoleDialog = ref(false);
 const showChangePasswordDialog = ref(false);
 const showExportDialog = ref(false);
 
-// 用于传递给子组件的当前操作用户数据
-const currentOperateUser = ref<User | null>(null);
+// 当前操作用户（扩展 rolesIdList）
+interface OperateUser extends User {
+  rolesIdList?: number[];
+}
+const currentOperateUser = ref<OperateUser | null>(null);
 
-// --- API 调用函数 ---
+/* ----------------- 角色下拉缓存 ----------------- */
+const allRoles = ref<RoleOptionDTO[]>([]);
 
-// 获取全部用户列表（无分页）
+async function fetchAllRoles() {
+  try {
+    const { data } = await listAllRoles();
+    allRoles.value = data || [];
+  } catch (e) {
+    ElMessage.error('获取角色列表失败');
+  }
+}
+
+/* ---------- 角色名转 id 工具 ---------- */
+function roleNamesToIds(roleNames: string = ''): number[] {
+  if (!roleNames) return [];
+  const nameArr = roleNames.split(',');
+  return allRoles.value
+      .filter(r => nameArr.includes(r.roleName))
+      .map(r => r.id);
+}
+
+/* ----------------- 用户列表 ----------------- */
+// 获取全部用户（无分页）
 const fetchUserList = async () => {
   loading.value = true;
   try {
     const res = await userService.getAllUsers({
       pageNum: 1,
-      pageSize: 9999, // 设置一个足够大的分页参数获取全部
+      pageSize: 9999,
     });
-
-    if (res.code === 200 && res.data?.records) {
-      userList.value = res.data.records;
+    if (res.code === 200 && res.data?.rows) {
+      userList.value = res.data.rows;
       totalUsers.value = res.data.total;
     } else {
       ElMessage.error(res?.message || '获取全部用户失败');
@@ -159,7 +185,7 @@ const fetchUserList = async () => {
   }
 };
 
-// 分页+条件搜索用户
+// 分页 + 条件搜索
 const searchUsers = async () => {
   loading.value = true;
   try {
@@ -167,11 +193,9 @@ const searchUsers = async () => {
       pageNum: currentPage.value - 1,
       pageSize: pageSize.value,
     };
-
-    // 使用完整的 searchForm.value 传给接口
     const res = await userService.searchUsers(searchForm.value, pageParams);
     if (res.code === 200 && res.data) {
-      userList.value = res.data.records;
+      userList.value = res.data.rows;
       totalUsers.value = res.data.total;
     } else {
       ElMessage.error(res?.message || '搜索用户失败');
@@ -182,7 +206,6 @@ const searchUsers = async () => {
     loading.value = false;
   }
 };
-
 
 // 重置搜索
 const resetSearch = () => {
@@ -201,52 +224,50 @@ const resetSearch = () => {
     updatedAt: undefined,
     updateTimeStart: undefined,
     updateTimeEnd: undefined,
+    createdBy: undefined,
+    updatedBy: undefined,
   };
   currentPage.value = 1;
   fetchUserList();
 };
 
-
-// 处理分页大小变化
+/* ----------------- 分页事件 ----------------- */
 const handleSizeChange = (val: number) => {
   pageSize.value = val;
   fetchUserList();
 };
 
-// 处理当前页码变化
 const handleCurrentChange = (val: number) => {
   currentPage.value = val;
   fetchUserList();
 };
 
-// --- 用户操作 ---
-
-// 编辑用户
+/* ----------------- 用户操作 ----------------- */
 const handleEdit = (user: User) => {
-  currentOperateUser.value = { ...user }; // 复制一份，避免直接修改
+  currentOperateUser.value = { ...user };
   showEditDialog.value = true;
 };
 
-// 更改角色
 const handleChangeRole = (user: User) => {
-  currentOperateUser.value = { ...user };
+  currentOperateUser.value = {
+    ...user,
+    rolesIdList: roleNamesToIds(user.roles),
+  };
   showChangeRoleDialog.value = true;
 };
 
-// 更改密码 (管理员重置)
 const handleChangePassword = (user: User) => {
   currentOperateUser.value = { ...user };
   showChangePasswordDialog.value = true;
 };
 
-// 删除用户
 const handleDelete = async (user: User) => {
   try {
-    await ElMessageBox.confirm(`确定要删除用户 "${user.username}" 吗？此操作不可逆！`, '警告', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
-      type: 'warning',
-    });
+    await ElMessageBox.confirm(
+        `确定要删除用户 "${user.username}" 吗？此操作不可逆！`,
+        '警告',
+        { confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning' }
+    );
     if (user.id === userStore.userInfo?.id) {
       ElMessage.warning('不能删除当前登录的管理员账户！');
       return;
@@ -266,9 +287,7 @@ const handleDelete = async (user: User) => {
   }
 };
 
-// --- 导出功能 ---
-
-// 导出所有用户
+/* ----------------- 导出功能 ----------------- */
 const handleExportAllUsers = async () => {
   try {
     const result = await ElMessageBox.prompt('请输入导出文件名:', '导出所有用户', {
@@ -279,8 +298,7 @@ const handleExportAllUsers = async () => {
       inputErrorMessage: '文件名不能为空',
     });
     const fileName = result.value || '所有用户数据';
-
-    await userExportService.exportAllUsers(fileName, searchForm.value.status); // 可以根据搜索条件导出
+    await userExportService.exportAllUsers(fileName, searchForm.value.status);
     ElMessage.success('所有用户数据已开始导出！');
   } catch (error: any) {
     if (error !== 'cancel') {
@@ -290,15 +308,15 @@ const handleExportAllUsers = async () => {
   }
 };
 
-// 导出弹窗关闭或导出成功后的回调
 const handleExported = () => {
   console.log('用户数据导出操作完成。');
 };
 
-// 组件挂载时获取用户列表
-onMounted(() => {
+/* ----------------- 初始化 ----------------- */
+onMounted(async () => {
   if (isAdmin.value) {
-    fetchUserList();
+    await fetchAllRoles();
+    await fetchUserList();
   } else {
     ElMessage.warning('您没有权限访问用户管理模块。');
     router.push('/');

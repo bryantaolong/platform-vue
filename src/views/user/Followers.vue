@@ -48,7 +48,7 @@ const loadData = async (page = 1) => {
     const res = await getFollowerUsers(userId.value, page, pageSize)
 
     if (res.code === 200 || res.code === 0) {
-      users.value = res.data.records
+      users.value = res.data.rows
       total.value = res.data.total
     }
   } catch (error) {

@@ -3,6 +3,7 @@
  * @description 博文收藏记录的前端实体定义，对应后端的 PostFavorite 实体类。
  */
 export interface PostFavorite {
+    id: number;
     userId: string;                 // 收藏者用户ID
     postId: string;                 // 被收藏的博文ID
     deleted: number;                // 逻辑删除标志
