@@ -4,7 +4,6 @@ import type { User } from '@/models/entity/User';
 import type { Result } from '@/models/response/Result';
 import type {MyBatisPageResult} from '@/models/response/MyBatisPageResult.ts';
 import type { UserSearchRequest } from '@/models/request/user/UserSearchRequest';
-import type { PageRequest } from '@/models/request/PageRequest';
 import type {UserUpdateRequest} from "@/models/request/user/UserUpdateRequest.ts";
 import type {ChangePasswordRequest} from "@/models/request/user/ChangePasswordRequest.ts";
 import type {ChangeRoleRequest} from "@/models/request/user/ChangeRoleRequest.ts";
@@ -12,11 +11,12 @@ import type {ChangeRoleRequest} from "@/models/request/user/ChangeRoleRequest.ts
 /**
  * 获取所有用户列表（不分页）
  */
-export function getAllUsers(pageRequest: PageRequest): Promise<Result<MyBatisPageResult<User>>> {
+export function getAllUsers(pageNum: number = 1,
+                            pageSize: number = 10): Promise<Result<MyBatisPageResult<User>>> {
     return request({
         url: '/api/user/all',
         method: 'post',
-        data: pageRequest,
+        params: { pageNum, pageSize },
     });
 }
 
@@ -45,17 +45,19 @@ export function getUserByUsername(username: string): Promise<Result<User>> {
 /**
  * 多条件搜索用户，带分页
  * @param search 查询条件
- * @param page 分页参数
+ * @param pageNum
+ * @param pageSize
  */
 export function searchUsers(
     search: UserSearchRequest,
-    page: PageRequest
+    pageNum: number = 1,
+    pageSize: number = 10
 ): Promise<Result<MyBatisPageResult<User>>> {
     return request({
         url: '/api/user/search',
         method: 'post',
         data: search,
-        params: page
+        params: { pageNum, pageSize },
     });
 }
 
@@ -106,8 +108,9 @@ export function changePassword(id: number, oldPassword: string, newPassword: str
  */
 export function changePasswordForcefully(id: number, newPassword: string): Promise<Result<User>> {
     return request({
-        url: `/api/user/${id}/password/force/${newPassword}`,
-        method: 'put'
+        url: `/api/user/${id}/password/force`,
+        method: 'put',
+        data: { newPassword } as ChangePasswordRequest
     });
 }
 
