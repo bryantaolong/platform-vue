@@ -14,7 +14,7 @@ import type {ChangeRoleRequest} from "@/models/request/user/ChangeRoleRequest.ts
 export function getAllUsers(pageNum: number = 1,
                             pageSize: number = 10): Promise<Result<MyBatisPageResult<User>>> {
     return request({
-        url: '/api/user/all',
+        url: '/api/users/all',
         method: 'post',
         params: { pageNum, pageSize },
     });
@@ -26,7 +26,7 @@ export function getAllUsers(pageNum: number = 1,
  */
 export function getUserById(id: number): Promise<Result<User>> {
     return request({
-        url: `/api/user/${id}`,
+        url: `/api/users/${id}`,
         method: 'get'
     });
 }
@@ -37,7 +37,7 @@ export function getUserById(id: number): Promise<Result<User>> {
  */
 export function getUserByUsername(username: string): Promise<Result<User>> {
     return request({
-        url: `/api/user/username/${username}`,
+        url: `/api/users/username/${username}`,
         method: 'get'
     });
 }
@@ -54,7 +54,7 @@ export function searchUsers(
     pageSize: number = 10
 ): Promise<Result<MyBatisPageResult<User>>> {
     return request({
-        url: '/api/user/search',
+        url: '/api/users/search',
         method: 'post',
         data: search,
         params: { pageNum, pageSize },
@@ -68,7 +68,7 @@ export function searchUsers(
  */
 export function updateUser(id: number, data: UserUpdateRequest): Promise<Result<User>> {
     return request({
-        url: `/api/user/${id}`,
+        url: `/api/users/${id}`,
         method: 'put',
         data
     });
@@ -81,7 +81,7 @@ export function updateUser(id: number, data: UserUpdateRequest): Promise<Result<
  */
 export function updateUserRole(id: number, roleIds: number[]): Promise<Result<User>> {
     return request({
-        url: `/api/user/users/${id}/roles`,
+        url: `/api/users/roles/${id}/`,
         method: 'put',
         data: { roleIds } as ChangeRoleRequest
     });
@@ -95,7 +95,7 @@ export function updateUserRole(id: number, roleIds: number[]): Promise<Result<Us
  */
 export function changePassword(id: number, oldPassword: string, newPassword: string): Promise<Result<User>> {
     return request({
-        url: `/api/user/${id}/password`,
+        url: `/api/users/password/${id}`,
         method: 'put',
         data: { oldPassword, newPassword } as ChangePasswordRequest
     });
@@ -108,7 +108,7 @@ export function changePassword(id: number, oldPassword: string, newPassword: str
  */
 export function changePasswordForcefully(id: number, newPassword: string): Promise<Result<User>> {
     return request({
-        url: `/api/user/${id}/password/force`,
+        url: `/api/users/password/force/${id}`,
         method: 'put',
         data: { newPassword } as ChangePasswordRequest
     });
@@ -120,7 +120,7 @@ export function changePasswordForcefully(id: number, newPassword: string): Promi
  */
 export function blockUser(id: number): Promise<Result<User>> {
     return request({
-        url: `/api/user/${id}/block`,
+        url: `/api/users//block${id}`,
         method: 'put'
     });
 }
@@ -131,7 +131,7 @@ export function blockUser(id: number): Promise<Result<User>> {
  */
 export function unblockUser(id: number): Promise<Result<User>> {
     return request({
-        url: `/api/user/${id}/unblock`,
+        url: `/api/users/unblock/${id}`,
         method: 'put'
     });
 }
@@ -142,7 +142,7 @@ export function unblockUser(id: number): Promise<Result<User>> {
  */
 export function deleteUser(id: number): Promise<Result<User>> {
     return request({
-        url: `/api/user/${id}`,
+        url: `/api/users/${id}`,
         method: 'delete'
     });
 }

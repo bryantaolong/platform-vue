@@ -23,7 +23,7 @@ export function getFavoritePostsByUserId(
     }
 ): Promise<Result<MongoPageResult<Post>>> {
     return request({
-        url: `/api/post_favorite/${userId}`,
+        url: `/api/post-favorites/${userId}`,
         method: 'get',
         params: {
             page: params?.page ?? 0,
@@ -37,7 +37,7 @@ export function getFavoritePostsByUserId(
 // 添加收藏
 export function addPostFavorite(data: PostFavoriteAddRequest): Promise<Result<string>> {
     return request({
-        url: '/api/post_favorite',
+        url: '/api/post-favorites',
         method: 'post',
         data
     });
@@ -46,7 +46,7 @@ export function addPostFavorite(data: PostFavoriteAddRequest): Promise<Result<st
 // 根据博文ID取消收藏
 export function deletePostFavorite(postId: string): Promise<Result<string>> {
     return request({
-        url: `/api/post_favorite/post/${postId}`,
+        url: `/api/post-favorites/post/${postId}`,
         method: 'delete'
     });
 }
@@ -54,7 +54,7 @@ export function deletePostFavorite(postId: string): Promise<Result<string>> {
 // 检查当前用户是否已收藏某博文
 export function checkPostFavorite(postId: string): Promise<Result<boolean>> {
     return request({
-        url: `/api/post_favorite/check/${postId}`,
+        url: `/api/post-favorites/check/${postId}`,
         method: 'get'
     });
 }

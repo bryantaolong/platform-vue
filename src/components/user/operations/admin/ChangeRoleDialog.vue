@@ -45,7 +45,7 @@
 import { ref, watch, computed, onMounted } from 'vue';
 import { ElMessage } from 'element-plus';
 import { updateUserRole } from '@/api/user';
-import {listAllRoles, type RoleOptionDTO} from '@/api/userRole';
+import {listAllRoles, type UserRoleOptionDTO} from '@/api/userRole';
 import type { User } from '@/models/entity/User';
 
 interface Props {
@@ -68,7 +68,7 @@ const dialogVisible = computed({
 /* 表单数据 */
 const username = ref('');
 const roleIds = ref<number[]>([]);
-const allRoles = ref<RoleOptionDTO[]>([]);
+const allRoles = ref<UserRoleOptionDTO[]>([]);
 const submitting = ref(false);
 
 /* 拉取全部角色 */

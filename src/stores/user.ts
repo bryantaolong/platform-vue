@@ -54,10 +54,9 @@ export const useUserStore = defineStore('user', {
      * @returns 包含用户信息User的ApiResponse
      */
     async fetchUserInfo(): Promise<Result<User>> {
-      // getCurrentUser 函数明确返回 ApiResponse<User> 类型
       const res = await getCurrentUser()
       if (res.code === 200) {
-        this.userInfo = res.data // res.data 现在被明确为 User 类型
+        this.userInfo = res.data
       }
       return res // 返回 res 方便调用者处理
     },

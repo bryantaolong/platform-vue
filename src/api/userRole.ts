@@ -5,14 +5,14 @@ import type { Result } from '@/models/response/Result';
 /**
  * 获取所有角色下拉选项（管理员权限）
  */
-export function listAllRoles(): Promise<Result<RoleOptionDTO[]>> {
+export function listAllRoles(): Promise<Result<UserRoleOptionDTO[]>> {
     return request({
-        url: '/api/user/role/all',
+        url: '/api/user-roles/all',
         method: 'get'
     });
 }
 
-export interface RoleOptionDTO {
+export interface UserRoleOptionDTO {
     id: number;
     roleName: string;
 }

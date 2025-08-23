@@ -14,7 +14,7 @@ import type { MyBatisPageResult } from '@/models/response/MyBatisPageResult.ts';
  */
 export function followUser(followingId: number): Promise<Result<boolean>> {
     return request({
-        url: `/api/user_follow/follow/${followingId}`,
+        url: `/api/user-follows/follow/${followingId}`,
         method: 'post',
     });
 }
@@ -25,7 +25,7 @@ export function followUser(followingId: number): Promise<Result<boolean>> {
  */
 export function unfollowUser(followingId: number): Promise<Result<boolean>> {
     return request({
-        url: `/api/user_follow/unfollow/${followingId}`,
+        url: `/api/user-follows/unfollow/${followingId}`,
         method: 'post',
     });
 }
@@ -42,7 +42,7 @@ export function getFollowingUsers(
     pageSize: number = 10
 ): Promise<Result<MyBatisPageResult<User>>> {
     return request({
-        url: `/api/user_follow/following/${userId}`,
+        url: `/api/user-follows/following/${userId}`,
         method: 'get',
         params: { pageNum, pageSize },
     });
@@ -60,7 +60,7 @@ export function getFollowerUsers(
     pageSize: number = 10
 ): Promise<Result<MyBatisPageResult<User>>> {
     return request({
-        url: `/api/user_follow/followers/${userId}`,
+        url: `/api/user-follows/followers/${userId}`,
         method: 'get',
         params: { pageNum, pageSize },
     });
@@ -72,7 +72,7 @@ export function getFollowerUsers(
  */
 export function isFollowing(followingId: number): Promise<Result<boolean>> {
     return request({
-        url: `/api/user_follow/check/${followingId}`,
+        url: `/api/user-follows/check/${followingId}`,
         method: 'get',
     });
 }
