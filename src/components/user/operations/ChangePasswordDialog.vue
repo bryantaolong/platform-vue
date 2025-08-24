@@ -29,7 +29,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
-import { ElMessage, FormInstance, FormRules } from 'element-plus';
+import { ElMessage } from 'element-plus';
+import type { FormInstance, FormRules } from 'element-plus';
 import * as userService from '@/api/user.ts';
 import type { User } from '@/models/entity/User.ts';
 import type { ChangePasswordRequest } from '@/models/request/user/ChangePasswordRequest.ts';
