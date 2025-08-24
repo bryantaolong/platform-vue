@@ -78,10 +78,9 @@ import { useRouter } from 'vue-router';
 import { useUserStore } from '@/stores/user';
 import * as userService from '@/api/user';
 import * as userExportService from '@/api/userExport';
-import { listAllRoles, type RoleOptionDTO } from '@/api/userRole';
+import { listAllRoles, type UserRoleOptionDTO } from '@/api/userRole';
 import type { User } from '@/models/entity/User';
 import type { UserSearchRequest } from '@/models/request/user/UserSearchRequest';
-import type { PageRequest } from '@/models/request/PageRequest';
 
 import EditUserDialog from '@/components/user/operations/EditUserDialog.vue';
 import ChangeRoleDialog from '@/components/user/operations/admin/ChangeRoleDialog.vue';
@@ -143,7 +142,7 @@ interface OperateUser extends User {
 const currentOperateUser = ref<OperateUser | null>(null);
 
 /* ----------------- 角色下拉缓存 ----------------- */
-const allRoles = ref<RoleOptionDTO[]>([]);
+const allRoles = ref<UserRoleOptionDTO[]>([]);
 
 async function fetchAllRoles() {
   try {
@@ -168,10 +167,7 @@ function roleNamesToIds(roleNames: string = ''): number[] {
 const fetchUserList = async () => {
   loading.value = true;
   try {
-    const res = await userService.getAllUsers({
-      pageNum: 1,
-      pageSize: 9999,
-    });
+    const res = await userService.getAllUsers(1, 9999);
     if (res.code === 200 && res.data?.rows) {
       userList.value = res.data.rows;
       totalUsers.value = res.data.total;
@@ -189,11 +185,10 @@ const fetchUserList = async () => {
 const searchUsers = async () => {
   loading.value = true;
   try {
-    const pageParams: PageRequest = {
-      pageNum: currentPage.value - 1,
-      pageSize: pageSize.value,
-    };
-    const res = await userService.searchUsers(searchForm.value, pageParams);
+    const page = currentPage.value;   // 当前页
+    const size = pageSize.value;           // 每页数量
+    const res = await userService.searchUsers(searchForm.value, page, size);
+
     if (res.code === 200 && res.data) {
       userList.value = res.data.rows;
       totalUsers.value = res.data.total;
@@ -201,11 +196,13 @@ const searchUsers = async () => {
       ElMessage.error(res?.message || '搜索用户失败');
     }
   } catch (error) {
+    console.error(error);
     ElMessage.error('网络错误，无法搜索用户');
   } finally {
     loading.value = false;
   }
 };
+
 
 // 重置搜索
 const resetSearch = () => {

@@ -67,7 +67,7 @@ const changePasswordRules = reactive<FormRules<typeof changePasswordForm>>({
   confirmNewPassword: [
     {
       required: true,
-      validator: (rule: any, value: string, callback: any) => {
+      validator: (_rule: any, value: string, callback: any) => {
         if (value === '') {
           callback(new Error('请再次输入新密码'));
         } else if (value !== changePasswordForm.newPassword) {

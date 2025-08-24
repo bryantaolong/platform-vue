@@ -26,7 +26,8 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
-import { ElMessage, FormInstance, FormRules } from 'element-plus';
+import { ElMessage } from 'element-plus';
+import type { FormInstance, FormRules } from 'element-plus';
 import { changePasswordForcefully } from '@/api/user';
 import type { User } from '@/models/entity/User';
 
@@ -64,7 +65,7 @@ const rules = reactive<FormRules<typeof form>>({
   confirmNewPassword: [
     {
       required: true,
-      validator: (rule, value, callback) => {
+      validator: (_rule, value, callback) => {
         if (!value) {
           callback(new Error('请再次输入新密码'));
         } else if (value !== form.newPassword) {

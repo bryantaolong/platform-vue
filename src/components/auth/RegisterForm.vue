@@ -17,6 +17,9 @@
         <el-input type="password" v-model="registerForm.confirmPassword" placeholder="请再次输入密码"
                   show-password></el-input>
       </el-form-item>
+      <el-form-item label="电话号码" prop="phone">
+        <el-input v-model="registerForm.phone" placeholder="请输入电话号码"></el-input>
+      </el-form-item>
       <el-form-item label="邮箱" prop="email">
         <el-input v-model="registerForm.email" placeholder="请输入邮箱"></el-input>
       </el-form-item>
@@ -51,12 +54,13 @@ interface RegisterFormModel extends RegisterRequest {
 const registerForm: RegisterFormModel = reactive({
   username: '',
   password: '',
+  phone: '',
   email: '',
   confirmPassword: '' // 初始化确认密码字段
 });
 
 // 自定义密码确认验证规则
-const validateConfirmPassword = (rule: any, value: string, callback: any) => {
+const validateConfirmPassword = (_rule: any, value: string, callback: any) => {
   if (value === '') {
     callback(new Error('请再次输入密码'));
   } else if (value !== registerForm.password) {
@@ -79,6 +83,10 @@ const registerRules = reactive({
   confirmPassword: [
     {required: true, validator: validateConfirmPassword, trigger: 'blur'}
   ],
+  phone: [
+    {required: false, message: '请输入电话号码', trigger: 'blur'},
+    {type: 'phone', message: '请输入正确的电话号码格式', trigger: ['blur', 'change']}
+  ],
   email: [
     {required: false, message: '请输入邮箱', trigger: 'blur'},
     {type: 'email', message: '请输入正确的邮箱格式', trigger: ['blur', 'change']}
@@ -99,6 +107,7 @@ const submitForm = async () => {
       const submitData: RegisterRequest = {
         username: registerForm.username,
         password: registerForm.password,
+        phone: registerForm.phone,
         email: registerForm.email
       };
 
