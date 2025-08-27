@@ -1,26 +1,32 @@
-<!-- src/components/user/EditUserDialog.vue -->
+<!-- src/components/user/EditUserProfileDialog.vue -->
 <template>
   <el-dialog v-model="dialogVisible" :title="title" width="500px" @close="handleClose">
     <el-form :model="currentEditUser" :rules="editUserRules" ref="editUserFormRef" label-width="80px">
       <el-form-item label="用户名" prop="username">
         <el-input v-model="currentEditUser.username" />
       </el-form-item>
+      <el-form-item label="手机号" prop="phone">
+        <el-input v-model="currentEditUser.phone" />
+      </el-form-item>
       <el-form-item label="邮箱" prop="email">
         <el-input v-model="currentEditUser.email" />
       </el-form-item>
-      <el-form-item label="手机号" prop="phoneNumber">
-        <el-input v-model="currentEditUser.phone" />
+      <el-form-item label="真实姓名" prop="realName">
+        <el-input v-model="currentEditUser.realName" />
       </el-form-item>
-<!--      <el-form-item label="性别" prop="gender">-->
-<!--        <el-select v-model="currentEditUser.gender" placeholder="请选择性别">-->
-<!--          <el-option label="男" :value="1" />-->
-<!--          <el-option label="女" :value="2" />-->
-<!--          <el-option label="保密" :value="0" />-->
-<!--        </el-select>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item label="头像" prop="avatar">-->
-<!--        <el-input v-model="currentEditUser.avatar" placeholder="头像 URL" />-->
-<!--      </el-form-item>-->
+      <el-form-item label="性别" prop="gender">
+        <el-select v-model="currentEditUser.gender" placeholder="请选择性别">
+          <el-option label="男" :value="1" />
+          <el-option label="女" :value="2" />
+          <el-option label="保密" :value="0" />
+        </el-select>
+        <el-form-item label="生日" prop="birthday">
+          <el-date-picker v-model="currentEditUser.birthday" />
+        </el-form-item>
+      </el-form-item>
+      <el-form-item label="头像" prop="avatar">
+        <el-input v-model="currentEditUser.avatar" placeholder="头像 URL" />
+      </el-form-item>
     </el-form>
     <template #footer>
       <el-button @click="dialogVisible = false">取消</el-button>
@@ -31,14 +37,15 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch } from 'vue';
-import { ElMessage, FormInstance } from 'element-plus';
-import { updateUser } from '@/api/user';
-import type { User } from '@/models/entity/User';
+import { ElMessage } from 'element-plus';
+import type {FormInstance} from 'element-plus';
+import { updateUser } from '@/api/userProfile';
+import type { UserProfileVO } from '@/models/vo/UserProfileVO';
 import type { UserUpdateRequest } from '@/models/request/user/UserUpdateRequest.ts';
 
 const props = defineProps<{
   visible: boolean;
-  userData?: User;
+  userData?: UserProfileVO;
 }>();
 
 const emit = defineEmits<{
@@ -52,18 +59,25 @@ const editUserFormRef = ref<FormInstance>();
 
 // 编辑用户表单数据
 const currentEditUser = reactive<UserUpdateRequest & { id?: number | null }>({
-  id: null,
+  userId: null,
   username: '',
-  email: '',
   phone: '',
+  email: '',
+  realName: '',
+  gender: 0,
+  birthday: '',
+  avatar: ''
+
 });
 
 // 校验规则
 const editUserRules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  email: [{ required: true, message: '请输入邮箱', trigger: 'blur' }],
-  phoneNumber: [{ pattern: /^[0-9]{5,20}$/, message: '请输入有效手机号', trigger: 'blur' }],
-  gender: [{ type: 'number', required: true, message: '请选择性别', trigger: 'change' }],
+  email: [{ required: false, message: '请输入邮箱', trigger: 'blur' }],
+  phone: [{ pattern: /^[0-9]{5,20}$/, message: '请输入有效手机号', trigger: 'blur' }],
+  realName:  [{ required: true, message: '请输入真实姓名', trigger: 'blur' }],
+  gender: [{ type: 'number', required: false, message: '请选择性别', trigger: 'change' }],
+  birthday: [{ type: 'string', required: false, message: '请选择日期', trigger: 'blur' }],
   avatar: [{ type: 'string', required: false, message: '请输入头像地址', trigger: 'blur' }]
 };
 
@@ -72,20 +86,25 @@ watch(() => props.visible, (newVal) => {
   dialogVisible.value = newVal;
   if (newVal && props.userData) {
     Object.assign(currentEditUser, {
-      id: props.userData.id,
+      userId: props.userData.userId,
       username: props.userData.username,
+      phone: props.userData.phone,
       email: props.userData.email,
-      phoneNumber: props.userData.phone,
-      // gender: props.userData.gender,
-      // avatar: props.userData.avatar
+      realName: props.userData.realName,
+      gender: props.userData.gender,
+      birthday: props.userData.birthday,
+      avatar: props.userData.avatar,
     });
     editUserFormRef.value?.clearValidate();
   } else if (newVal) {
     Object.assign(currentEditUser, {
-      id: null,
+      userId: null,
       username: '',
-      email: '',
       phone: '',
+      email: '',
+      realName: '',
+      gender: 0,
+      birthday: '',
       avatar: ''
     });
     editUserFormRef.value?.resetFields();
@@ -102,8 +121,9 @@ const submitForm = async () => {
           username: currentEditUser.username,
           email: currentEditUser.email,
           phone: currentEditUser.phone,
-          // gender: currentEditUser.gender,
-          // avatar: currentEditUser.avatar
+          gender: currentEditUser.gender,
+          birthday: currentEditUser.birthday,
+          avatar: currentEditUser.avatar
         });
         ElMessage.success('用户信息更新成功');
         dialogVisible.value = false;

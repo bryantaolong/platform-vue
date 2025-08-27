@@ -69,7 +69,7 @@
     </el-card>
 
     <!-- 编辑用户信息弹窗 -->
-    <EditUserDialog
+    <EditUserProfileDialog
         :visible="showEditUserDialog"
         :user-data="user"
         @update:visible="showEditUserDialog = $event"
@@ -82,7 +82,7 @@
 import {ref, onMounted, computed, watchEffect} from 'vue'
 import {ElMessage} from 'element-plus'
 import router from '@/router'
-import EditUserDialog from '@/components/user/operations/EditUserDialog.vue'
+import EditUserProfileDialog from '@/components/user/operations/EditUserProfileDialog.vue'
 import {getFollowingUsers, getFollowerUsers, unfollowUser, followUser, isFollowing} from '@/api/userFollow'
 import type {User} from '@/models/entity/User'
 import {View} from "@element-plus/icons-vue";

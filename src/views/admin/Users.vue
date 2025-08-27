@@ -82,7 +82,7 @@ import { listAllRoles, type UserRoleOptionDTO } from '@/api/userRole';
 import type { User } from '@/models/entity/User';
 import type { UserSearchRequest } from '@/models/request/user/UserSearchRequest';
 
-import EditUserDialog from '@/components/user/operations/EditUserDialog.vue';
+import EditUserDialog from '@/components/user/operations/admin/EditUserDialog.vue';
 import ChangeRoleDialog from '@/components/user/operations/admin/ChangeRoleDialog.vue';
 import ChangePasswordForcefullyDialog from '@/components/user/operations/admin/ChangePasswordForcefullyDialog.vue';
 import ExportUsersDialog from '@/components/user/operations/admin/ExportUsersDialog.vue';
